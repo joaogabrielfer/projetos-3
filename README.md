@@ -57,6 +57,7 @@ Para garantir a organização e evitar conflitos no código, a equipe utiliza um
 
 ## 👥 Equipe
 
+- David Alves
 - Francisco Amorim
 - Guilherme Henrique
 - João Gabriel
@@ -82,6 +83,6 @@ Para garantir a organização e evitar conflitos no código, a equipe utiliza um
 
 ## 📋 Quadro de Tarefas (Status Atual)
 
-...
+__foto do quadro aqui__
 <!-- <img src="./imgs/kanban_placeholder.png" alt="Print do Trello/Jira atualizado" width="1000"/> -->
 
