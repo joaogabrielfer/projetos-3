@@ -62,7 +62,6 @@ Para garantir a organização e evitar conflitos no código, a equipe utiliza um
 
 ## 👥 Equipe
 
-- David Alves
 - Francisco Amorim
 - Guilherme Henrique
 - João Gabriel
