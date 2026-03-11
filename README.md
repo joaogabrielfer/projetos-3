@@ -2,7 +2,12 @@
 
 ## 📝 Descrição do Projeto
 
-O **Projeto 3** ...
+A Edenred está passando por um processo de transição de seus cartões físicos para um modelo 100% digital. No entanto, muitos clientes ainda demonstram resistência e insegurança devido ao costume com o plástico, pois não conseguem visualizar de forma clara os benefícios práticos e sustentáveis dessa mudança.
+
+Para quebrar essa barreira cultural e incentivar a adoção, este projeto propõe uma plataforma web focada na "Pegada Verde" do usuário. O site atua como uma vitrine interativa que destaca todas as vantagens e a praticidade do cartão digital.
+
+🌱 A Solução:
+O coração da plataforma é uma calculadora de impacto ambiental. Ela traduz a mudança do cartão físico para o digital em dados reais e compreensíveis, mostrando ao cliente a redução do uso de plástico, a queda nas emissões de carbono (poupadas na produção e transporte) e o impacto positivo de suas escolhas. Dessa forma, tornamos a sustentabilidade tangível, gerando valor real para o usuário e dando a confiança necessária para que ele abrace a solução digital.
 
 ---
 
