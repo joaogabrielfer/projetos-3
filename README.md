@@ -100,3 +100,9 @@ Para garantir a organização e evitar conflitos no código, a equipe utiliza um
 __foto do quadro aqui__
 <!-- <img src="./imgs/kanban_placeholder.png" alt="Print do Trello/Jira atualizado" width="1000"/> -->
 
+---
+
+##   Screencast
+
+<video src="https://www.youtube.com/watch?v=QIAr2KJRF0M" width="300" controls>
+</video>
