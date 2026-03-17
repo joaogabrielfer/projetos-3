@@ -20,9 +20,9 @@ O coração da plataforma é uma calculadora de impacto ambiental. Ela traduz a 
 - **Banco de Dados:** ...
 
 ### Links:
-- **Quadro de Tarefas:** https://trello.com/b/23n4xjVa/projetos-3
-- **Prototipação:** https://www.figma.com/design/TGKN1uLUKmOJaoAI1P97lI/EdenGreen-Impact?fuid=1486331233298262631&source=email_invite&entry_point=file_role_invite_redeem
-- **Screencast / Pitch:** ...
+- **Quadro de Tarefas:** [trello](https://trello.com/b/23n4xjVa/projetos-3)
+- **Prototipação:** [figma](https://www.figma.com/design/TGKN1uLUKmOJaoAI1P97lI/EdenGreen-Impact?fuid=1486331233298262631&source=email_invite&entry_point=file_role_invite_redeem)
+- **Screencast** [video](https://www.youtube.com/watch?v=QIAr2KJRF0M)
 
 ---
 
@@ -99,10 +99,3 @@ Para garantir a organização e evitar conflitos no código, a equipe utiliza um
 
 __foto do quadro aqui__
 <!-- <img src="./imgs/kanban_placeholder.png" alt="Print do Trello/Jira atualizado" width="1000"/> -->
-
----
-
-##   Screencast
-
-<video src="https://www.youtube.com/watch?v=QIAr2KJRF0M" width="300" controls>
-</video>
