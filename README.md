@@ -21,7 +21,7 @@ O coração da plataforma é uma calculadora de impacto ambiental. Ela traduz a 
 
 ### Links:
 - **Quadro de Tarefas:** https://trello.com/b/23n4xjVa/projetos-3
-- **Prototipação:** ...
+- **Prototipação:** https://www.figma.com/design/TGKN1uLUKmOJaoAI1P97lI/EdenGreen-Impact?fuid=1486331233298262631&source=email_invite&entry_point=file_role_invite_redeem
 - **Screencast / Pitch:** ...
 
 ---
