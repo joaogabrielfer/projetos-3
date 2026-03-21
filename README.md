@@ -71,6 +71,12 @@ Para garantir a organização e evitar conflitos no código, a equipe utiliza um
 - Renato Lopes
 
 ---
+## 👤 Épicos
+
+- **Épico 01:** Simulação de Impacto Ambiental
+- **Épico 02:** Análise e Visualização de Dados
+  
+---
 
 ## 👤 Histórias de Usuário (UH)
 
