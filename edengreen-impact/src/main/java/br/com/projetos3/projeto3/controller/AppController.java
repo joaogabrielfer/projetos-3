@@ -6,14 +6,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import br.com.projetos3.projeto3.*;
+import br.com.projetos3.projeto3.model.DadosForm;
 
 @Controller
 public class AppController {
 
-    @GetMapping("/index")
-    public String getIndex() {
-        return "forward:/index.html";
-    }
+@GetMapping("/")
+public String getIndex() {
+    return "index"; 
+}
 
     @PostMapping("/dados")
     @ResponseBody

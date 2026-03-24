@@ -1,10 +1,13 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>API Minimalista</title>
+    <title>Aplicação Web</title>
+    
+    <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
+    <script th:src="@{/script.js}"></script>
     <h1>Envio de Dados</h1>
     <!-- O form envia um POST para a rota /dados -->
     <form action="/dados" method="POST">
