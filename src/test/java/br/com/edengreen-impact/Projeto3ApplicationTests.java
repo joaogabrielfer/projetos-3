@@ -1,4 +1,4 @@
-package br.com.projetos3.projeto3;
+package br.com.edengreen_impact;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

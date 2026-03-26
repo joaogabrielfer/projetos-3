@@ -1,4 +1,4 @@
-package br.com.projetos3.projeto3;
+package br.com.edengreen_impact;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
