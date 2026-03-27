@@ -1,20 +1,52 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>Aplicação Web</title>
-    
+    <title>EdenGreen Impact - Calculadora</title>
     <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
-    <script th:src="@{/script.js}"></script>
-    <h1>Envio de Dados</h1>
-    <!-- O form envia um POST para a rota /dados -->
-    <form action="/dados" method="POST">
-        <label for="id">ID (Placeholder):</label>
-        <input type="text" id="id" name="id" required>
-        <br><br>
-        <button type="submit">Enviar</button>
+
+
+    <main class="calculator-container">
+
+    <header>
+        <h1>EdenGreen Impact</h1>
+        <p class="subtitle">Calculadora de emissões de GEE</p>
+    </header>
+
+    <form id="impactForm">
+        <div class="form-group">
+            <label for="numeroTransacoes">Qtd. de Transações</label>
+            <input type="number" id="numeroTransacoes" placeholder="Ex: 2300">
+        </div>
+
+        <div class="form-group">
+            <label for="tipoPagamento">Meio de Pagamento</label>
+            <select id="tipoPagamento">
+                <option value="">Selecione...</option>
+                <option value="FISICO">Cartão Físico</option>
+                <option value="DIGITAL">Digital / Pix</option>
+            </select>
+        </div>
+
+        <button type="submit">Calcular Impacto</button>
     </form>
+
+    <div id="loadingState" class="hidden">Calculando...</div>
+
+
+    <div id="resultState" class="hidden">
+        <h2>Resultado</h2>
+        <p><strong><span id="valorCO2e">0.00</span> kg CO2e</strong></p>
+    </div>
+
+</main>
+
+    
+    
+<script th:src="@{/script.js}"></script>
 </body>
 </html>
+
+
