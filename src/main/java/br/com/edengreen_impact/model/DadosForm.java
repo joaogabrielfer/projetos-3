@@ -1,4 +1,5 @@
 package br.com.edengreen_impact.model;
 
-public record DadosForm(String id) {
+public record DadosForm(Integer numeroTransacoes, String tipoPagamento) {
 }
+
