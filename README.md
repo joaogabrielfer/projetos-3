@@ -81,25 +81,28 @@ Para garantir a organização e evitar conflitos no código, a equipe utiliza um
 ## 👤 Histórias de Usuário (UH)
 
 - **UH01:** Inserir dados da simulação
-- **UH02:** Calular emissões de transação física
-- **UH03:** Calular emissões de transação digital
-- **UH04:** Comparar impacto físico vs digital
-- **UH05:** Visualizar resultados em gráfico
-- **UH06:** Simular cenários de migração
-- **UH07:** Comparar diferentes cenários
-- **UH08:** Visualizar equivalências ambientais
-- **UH09:** Gerar relatório automático
-- **UH10:** Cadastro de usuário
-- **UH11:** Login no sistema
+- **UH02:** Calular emissões de transação 
+- **UH03:** Comparar impacto físico vs digital
+- **UH04:** Visualizar resultados em gráfico
+- **UH05:** Simular cenários de migração
+- **UH06:** Visualizar equivalências ambientais
+- **UH07:** Gerar relatório automático
+- **UH08:** Cadastro de usuário
+- **UH09:** Login no sistema
     
 ---
 
 ## 🏃 Sprints
 
 **1ª Sprint (...)**
-- UH01 - ...
+- UH01 - Inserir dados da simulação
+- UH02 - Calular emissões de transação 
 
+**2ª Sprint (...)**
+- UH03 - Comparar impacto físico vs digital
+- UH04 - Visualizar resultados em gráfico 
 ---
+
 
 ## 📋 Quadro de Tarefas (Status Atual)
 
