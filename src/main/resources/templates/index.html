@@ -14,6 +14,10 @@
         <h1>EdenGreen Impact</h1>
         <p class="subtitle">Calculadora de emissões de GEE</p>
     </header>
+    <div class="tipo-selecao">
+        <button type="botao" class="tipo-butao active" id="btF" onclick="selecionarTipo('FISICO')">Físico</button>
+        <button type="botao" class="tipo-butao" id="btD" onclick="selecionarTipo('DIGITAL')">Digital</button>
+    </div>
 
     <form id="impactForm">
         <div class="form-group">
@@ -29,6 +33,26 @@
                 <option value="DIGITAL">Digital / Pix</option>
             </select>
         </div>
+        
+        <div class="form-section" id="formDigital">
+            <div class="form-group">
+                <label for="tipoRede">Tipo de rede utilizada</label>
+                <select id="tipoRede">
+                    <option value="4G">4G</option>
+                    <option value="5G">5G</option>
+                    <option value="WIFI">Wi-Fi</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="energiaServidor">Energia do servidor</label>
+                <select id="energiaServidor">
+                    <option value="MISTO">Misto</option>
+                    <option value="RENOVAVEL">100% renovável</option>
+                    <option value="FOSSIL">Maioria fóssil</option>
+                </select>
+            </div>
+        </div>
+
 
         <button type="submit">Calcular Impacto</button>
     </form>
@@ -43,9 +67,17 @@
 
 </main>
 
-    
-    
+        
 <script th:src="@{/script.js}"></script>
+<script>
+    function selecionarTipo(tipo) {
+        document.getElementById('tipoPagamento').value = tipo;
+        document.getElementById('btnFisico').classList.toggle('active', tipo === 'FISICO');
+        document.getElementById('btnDigital').classList.toggle('active', tipo === 'DIGITAL');
+        document.getElementById('formFisico').classList.toggle('active', tipo === 'FISICO');
+        document.getElementById('formDigital').classList.toggle('active', tipo === 'DIGITAL');
+    }
+</script>
 </body>
 </html>
 
