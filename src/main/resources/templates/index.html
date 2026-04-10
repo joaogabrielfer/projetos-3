@@ -6,47 +6,79 @@
     <link rel="stylesheet" th:href="@{/style.css}">
 </head>
 <body>
-
-
+ 
     <main class="calculator-container">
-
-    <header>
-        <h1>EdenGreen Impact</h1>
-        <p class="subtitle">Calculadora de emissões de GEE</p>
-    </header>
-
-    <form id="impactForm">
-        <div class="form-group">
-            <label for="numeroTransacoes">Qtd. de Transações</label>
-            <input type="number" id="numeroTransacoes" placeholder="Ex: 2300">
+ 
+        <header>
+            <h1>EdenGreen Impact</h1>
+            <p class="subtitle">Calculadora de emissões de GEE</p>
+        </header>
+ 
+        <form id="impactForm">
+ 
+            <input type="hidden" id="tipoPagamento" value="FISICO">
+ 
+            <div class="form-group">
+                <label for="numeroTransacoes">Qtd. de Transações</label>
+                <input type="number" id="numeroTransacoes" placeholder="Ex: 2300">
+                <div class="field-error" id="err-transacoes"></div>
+            </div>
+ 
+            <button type="submit">Calcular Impacto</button>
+ 
+        </form>
+ 
+        <div id="loadingState" class="hidden">Calculando...</div>
+ 
+        <div id="resultState" class="hidden">
+            <h2>Resultado</h2>
+            <p><strong><span id="valorCO2e">0.00</span> kg CO2</strong></p>
         </div>
+ 
+    </main>
+ 
+    <script>
+        document.getElementById('impactForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            event.stopPropagation();
+ 
+            var loading    = document.getElementById('loadingState');
+            var result     = document.getElementById('resultState');
+            var valorCO2e  = document.getElementById('valorCO2e');
+            var transacoes = document.getElementById('numeroTransacoes').value;
+            var input      = document.getElementById('numeroTransacoes');
+            var errEl      = document.getElementById('err-transacoes');
+ 
+            input.classList.remove('invalid');
+            if (errEl) { errEl.textContent = ''; errEl.classList.remove('visible'); }
+ 
+            if (transacoes == '') {
+                input.classList.add('invalid');
+                if (errEl) { errEl.textContent = 'O número de transações precisa ser informado.'; errEl.classList.add('visible'); }
+                return false;
+            }
+            if (transacoes <= 0) {
+                input.classList.add('invalid');
+                if (errEl) { errEl.textContent = 'O número de transações precisa ser maior que 0.'; errEl.classList.add('visible'); }
+                return false;
+            }
+ 
+            // Exibe loading
+            if (loading) loading.classList.remove('hidden');
+            if (result)  result.classList.add('hidden');
 
-        <div class="form-group">
-            <label for="tipoPagamento">Meio de Pagamento</label>
-            <select id="tipoPagamento">
-                <option value="">Selecione...</option>
-                <option value="FISICO">Cartão Físico</option>
-                <option value="DIGITAL">Digital / Pix</option>
-            </select>
-        </div>
-
-        <button type="submit">Calcular Impacto</button>
-    </form>
-
-    <div id="loadingState" class="hidden">Calculando...</div>
-
-
-    <div id="resultState" class="hidden">
-        <h2>Resultado</h2>
-        <p><strong><span id="valorCO2e">0.00</span> kg CO2</strong></p>
-    </div>
-
-</main>
-
-    
-    
-<script th:src="@{/script.js}"></script>
+            var somaFatores = 0.0210 + 0.0075 + 0.0102;
+            var resultadoSimulado = (parseInt(transacoes) * (somaFatores / 3000)).toFixed(5);
+ 
+            if (loading) loading.classList.add('hidden');
+            if (result) {
+                result.classList.remove('hidden');
+                valorCO2e.innerText = resultadoSimulado;
+            }
+ 
+            return false;
+        });
+    </script>
+ 
 </body>
 </html>
-
-
