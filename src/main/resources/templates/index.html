@@ -2,50 +2,76 @@
 <html xmlns:th="http://www.thymeleaf.org" lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <title>EdenGreen Impact - Calculadora</title>
+    <title>EdenGreen Impact - Dashboard</title>
     <link rel="stylesheet" th:href="@{/style.css}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+    <div class="container">
+        <header>
+            <h1>EdenGreen Impact</h1>
+            <p>Simulador de Impacto Ambiental</p>
+        </header>
 
+        <form id="impactForm">
+            <div class="form-group">
+                <label>Quantidade de Transações:</label>
+                <input type="number" id="numeroTransacoes" required>
+            </div>
 
-    <main class="calculator-container">
+            <div class="form-group">
+                <label>Meio de Pagamento Atual:</label>
+                <select id="tipoPagamento" required>
+                    <option value="FISICO">Cartão Físico</option>
+                    <option value="DIGITAL">Digital / Pix</option>
+                </select>
+            </div>
+            <div class="form-group">
+    <label>Peso do Cartão (gramas):</label>
+    <input type="number" step="0.1" id="pesoMedioCartao" placeholder="Ex: 5.0">
+</div>
 
-    <header>
-        <h1>EdenGreen Impact</h1>
-        <p class="subtitle">Calculadora de emissões de GEE</p>
-    </header>
+<div class="form-group">
+    <label>Material do Cartão:</label>
+    <select id="fatorEmissaoMaterial">
+        <option value="0.0210">PVC Virgem (Padrão)</option>
+        <option value="0.0150">PVC Reciclado</option>
+        <option value="0.0500">Metal</option>
+    </select>
+</div>
+            <button type="submit">Gerar Relatório Completo</button>
+        </form>
 
-    <form id="impactForm">
-        <div class="form-group">
-            <label for="numeroTransacoes">Qtd. de Transações</label>
-            <input type="number" id="numeroTransacoes" placeholder="Ex: 2300">
+        <div id="loadingState" class="hidden">Processando modelos de dados...</div>
+
+        <div id="resultState" class="hidden">
+            <div class="resultado-principal">
+                <h3>Emissão da Seleção:</h3>
+                <p><span id="valorIndividual">0.00000</span> kg CO₂e</p>
+            </div>
+
+            <div class="grid-comparacao">
+                <div class="card">
+                    <h4>Cenário Físico</h4>
+                    <p><span id="valorFisico">0.00</span> kg</p>
+                </div>
+                <div class="card">
+                    <h4>Cenário Digital</h4>
+                    <p><span id="valorDigital">0.00</span> kg</p>
+                </div>
+            </div>
+
+            <div class="alerta-reducao">
+                Potencial de Redução: <span id="reducaoAbs">0.00</span> kg 
+                (<span id="reducaoPct">0</span>%)
+            </div>
+
+            <div class="grafico-box">
+                <canvas id="impactoChart"></canvas>
+            </div>
         </div>
-
-        <div class="form-group">
-            <label for="tipoPagamento">Meio de Pagamento</label>
-            <select id="tipoPagamento">
-                <option value="">Selecione...</option>
-                <option value="FISICO">Cartão Físico</option>
-                <option value="DIGITAL">Digital / Pix</option>
-            </select>
-        </div>
-
-        <button type="submit">Calcular Impacto</button>
-    </form>
-
-    <div id="loadingState" class="hidden">Calculando...</div>
-
-
-    <div id="resultState" class="hidden">
-        <h2>Resultado</h2>
-        <p><strong><span id="valorCO2e">0.00</span> kg CO2</strong></p>
     </div>
-
-</main>
-
-    
-    
-<script th:src="@{/script.js}"></script>
+    <script th:src="@{/script.js}"></script>
 </body>
 </html>
 
