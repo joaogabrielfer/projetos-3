@@ -9,8 +9,7 @@ document.getElementById('impactForm').addEventListener('submit', async function(
     const payload = {
     numeroTransacoes: parseInt(document.getElementById('numeroTransacoes').value),
     tipoPagamento: document.getElementById('tipoPagamento').value,
-    pesoMedioCartao: parseFloat(document.getElementById('pesoMedioCartao').value) || 5.0,
-    fatorEmissaoMaterial: parseFloat(document.getElementById('fatorEmissaoMaterial').value)
+    fatorTipoCartao: parseFloat(document.getElementById('fatorTipoCartao').value)
 };
 
     loading.classList.remove('hidden');
@@ -24,7 +23,6 @@ document.getElementById('impactForm').addEventListener('submit', async function(
         ]);
         document.getElementById('valorIndividual').innerText = resIndividual;
         document.getElementById('valorFisico').innerText = resComparar.emissaoFisico.toFixed(5);
-        document.getElementById('valorDigital').innerText = resComparar.emissaoDigital.toFixed(5);
         document.getElementById('reducaoAbs').innerText = resComparar.reducao.toFixed(5);
         document.getElementById('reducaoPct').innerText = resComparar.percentualReducao.toFixed(2);
         renderGrafico(resGrafico);
