@@ -23,20 +23,19 @@
                 <label>Meio de Pagamento Atual:</label>
                 <select id="tipoPagamento" required>
                     <option value="FISICO">Cartão Físico</option>
-                    <option value="DIGITAL">Digital / Pix</option>
                 </select>
             </div>
             <div class="form-group">
-    <label>Peso do Cartão (gramas):</label>
-    <input type="number" step="0.1" id="pesoMedioCartao" placeholder="Ex: 5.0">
 </div>
 
 <div class="form-group">
-    <label>Material do Cartão:</label>
-    <select id="fatorEmissaoMaterial">
-        <option value="0.0210">PVC Virgem (Padrão)</option>
-        <option value="0.0150">PVC Reciclado</option>
-        <option value="0.0500">Metal</option>
+    <label>Tipo do Cartão</label>
+    <select id="fatorTipoCartao">
+        <option value="">Selecione...</option>
+        <option value="0.02">VR Benefícios</option>
+        <option value="0.03">Flash Benefícios</option>
+        <option value="0.025">Alelo</option>
+        <option value="0.028">Sodexo</option>
     </select>
 </div>
             <button type="submit">Gerar Relatório Completo</button>
@@ -54,10 +53,6 @@
                 <div class="card">
                     <h4>Cenário Físico</h4>
                     <p><span id="valorFisico">0.00</span> kg</p>
-                </div>
-                <div class="card">
-                    <h4>Cenário Digital</h4>
-                    <p><span id="valorDigital">0.00</span> kg</p>
                 </div>
             </div>
 
