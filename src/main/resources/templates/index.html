@@ -5,6 +5,69 @@
     <title>EdenGreen Impact - Dashboard</title>
     <link rel="stylesheet" th:href="@{/style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .cartao-item {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border: 1px solid #eee;
+            position: relative;
+        }
+        .cartao-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 15px;
+            align-items: end;
+        }
+        .field-group {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+        .field-group label {
+            margin-bottom: 0;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        .btn-remove {
+            background-color: var(--danger-red);
+            color: white;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            height: 46px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            transition: opacity 0.3s;
+        }
+        .btn-remove:hover {
+            opacity: 0.8;
+            transform: none;
+            box-shadow: none;
+        }
+        .btn-add {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            width: auto;
+            display: inline-block;
+        }
+        .btn-add:hover {
+            background-color: #2980b9;
+        }
+        #cartoesContainer h3 {
+            margin-bottom: 15px;
+            color: var(--dark-green);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -14,51 +77,58 @@
         </header>
 
         <form id="impactForm">
-            <div class="form-group">
-                <label>Quantidade de Transações:</label>
-                <input type="number" id="numeroTransacoes" required>
+            <div id="cartoesContainer">
+                <h3>Seus Cartões Físicos</h3>
+                <!-- Template inicial -->
+                <div class="cartao-item">
+                    <div class="cartao-row">
+                        <div class="field-group">
+                            <label>Tipo do Cartão</label>
+                            <select class="tipo-cartao" required>
+                                <option value="">Selecione...</option>
+                                <option value="VR Benefícios">VR Benefícios</option>
+                                <option value="Flash">Flash</option>
+                                <option value="Benefícios">Benefícios</option>
+                                <option value="Alelo Sodexo">Alelo Sodexo</option>
+                            </select>
+                        </div>
+                        <div class="field-group">
+                            <label>Anos de Posse</label>
+                            <input type="number" class="anos-cartao" placeholder="Ex: 2" min="1" required>
+                        </div>
+                        <button type="button" class="btn-remove" onclick="removerCartao(this)">Remover</button>
+                    </div>
+                </div>
             </div>
-
-            <div class="form-group">
-                <label>Meio de Pagamento Atual:</label>
-                <select id="tipoPagamento" required>
-                    <option value="FISICO">Cartão Físico</option>
-                </select>
+            
+            <button type="button" class="btn-add" id="btnAddCartao">+ Adicionar Outro Cartão</button>
+            <div style="margin-top: 20px;">
+                <button type="submit">Calcular Impacto Total</button>
             </div>
-            <div class="form-group">
-</div>
-
-<div class="form-group">
-    <label>Tipo do Cartão</label>
-    <select id="fatorTipoCartao">
-        <option value="">Selecione...</option>
-        <option value="0.02">VR Benefícios</option>
-        <option value="0.03">Flash Benefícios</option>
-        <option value="0.025">Alelo</option>
-        <option value="0.028">Sodexo</option>
-    </select>
-</div>
-            <button type="submit">Gerar Relatório Completo</button>
         </form>
 
-        <div id="loadingState" class="hidden">Processando modelos de dados...</div>
+        <div id="loadingState" class="hidden">Analisando dados ambientais...</div>
 
         <div id="resultState" class="hidden">
             <div class="resultado-principal">
-                <h3>Emissão da Seleção:</h3>
+                <h3>Emissão Total Acumulada:</h3>
                 <p><span id="valorIndividual">0.00000</span> kg CO₂e</p>
             </div>
 
             <div class="grid-comparacao">
                 <div class="card">
-                    <h4>Cenário Físico</h4>
+                    <h4>Cenário Atual (Físico)</h4>
                     <p><span id="valorFisico">0.00</span> kg</p>
+                </div>
+                <div class="card">
+                    <h4>Cenário Eco (Digital)</h4>
+                    <p><span id="valorDigital">0.00</span> kg</p>
                 </div>
             </div>
 
             <div class="alerta-reducao">
-                Potencial de Redução: <span id="reducaoAbs">0.00</span> kg 
-                (<span id="reducaoPct">0</span>%)
+                Sua economia potencial é de <span id="reducaoAbs">0.00</span> kg CO₂e 
+                (<span id="reducaoPct">0</span>%) ao migrar para o digital.
             </div>
 
             <div class="grafico-box">
@@ -69,5 +139,3 @@
     <script th:src="@{/script.js}"></script>
 </body>
 </html>
-
-

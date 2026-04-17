@@ -5,16 +5,24 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.beans.factory.annotation.Autowired;
 import br.com.edengreen_impact.model.DadosForm;
-
 import br.com.edengreen_impact.model.ImpactoComparativo;
+import br.com.edengreen_impact.model.GraficoImpacto;
+import br.com.edengreen_impact.service.ImpactoService;
 
 import java.util.List;
 import java.util.Map;
-import br.com.edengreen_impact.model.GraficoImpacto;
 
 @Controller
 public class AppController {
+
+    private final ImpactoService impactoService;
+
+    @Autowired
+    public AppController(ImpactoService impactoService) {
+        this.impactoService = impactoService;
+    }
 
     @GetMapping("/")
     public String getIndex() {
@@ -24,23 +32,15 @@ public class AppController {
     @PostMapping("/dados")
     @ResponseBody
     public String postDados(@RequestBody DadosForm dados) {
-        double res = 0;
-
-        if (dados.tipoPagamento().equals("FISICO")) {
-            res = calcularImpactoFisico(dados);
-        } else if (dados.tipoPagamento().equals("DIGITAL")) {
-            res = calcularImpactoDigital(dados);
-        } else {
-            return "erro";
-        }
-        return String.format("%.5f", res);
+        double res = impactoService.calcularImpactoFisico(dados);
+        return String.format(java.util.Locale.US, "%.5f", res);
     }
 
     @PostMapping("/comparar")
     @ResponseBody
     public ImpactoComparativo compararImpactos(@RequestBody DadosForm dados) {
-        double fisico = calcularImpactoFisico(dados);
-        double digital = calcularImpactoDigital(dados);
+        double fisico = impactoService.calcularImpactoFisico(dados);
+        double digital = impactoService.calcularImpactoDigital(dados);
         double reducao = fisico - digital;
         double percentual = (fisico > 0) ? (reducao / fisico) * 100 : 0;
 
@@ -50,8 +50,8 @@ public class AppController {
     @PostMapping("/graficos")
     @ResponseBody
     public GraficoImpacto obterDadosGraficos(@RequestBody DadosForm dados) {
-        double fisico = calcularImpactoFisico(dados);
-        double digital = calcularImpactoDigital(dados);
+        double fisico = impactoService.calcularImpactoFisico(dados);
+        double digital = impactoService.calcularImpactoDigital(dados);
         
         return new GraficoImpacto(
             List.of("Físico", "Digital"),
@@ -59,36 +59,4 @@ public class AppController {
             Map.of("reducao", fisico - digital)
         );
     }
-
-    private double calcularImpactoFisico(DadosForm dados) {
-        double emissaoPorTransacao = obterFatorEmissaoPorTransacao(dados);
-        return dados.numeroTransacoes() * emissaoPorTransacao;
-    }
-
-    // Optimization: Cacheable factor calculation (T7UH04)
-    private double obterFatorEmissaoPorTransacao(DadosForm dados) {
-        // a) Produção do cartão (Material + Chip/Antena)
-        double emissaoMaterial = (dados.pesoMedioCartao() != null && dados.fatorEmissaoMaterial() != null) 
-            ? (dados.pesoMedioCartao() / 1000.0) * dados.fatorEmissaoMaterial() 
-            : 0.0210;
-        
-        double emissaoChipAntena = (dados.emissoesChipAntena() != null) ? dados.emissoesChipAntena() : 0.0075;
-        
-        // c) Fim de vida
-        double emissaoFimVida = (dados.fatorEmissaoDescarte() != null) ? dados.fatorEmissaoDescarte() : 0.0102;
-        
-        double emissaoTotalCicloVida = emissaoMaterial + emissaoChipAntena + emissaoFimVida;
-        
-        // b) Vida útil
-        int totalTransacoes = (dados.totalTransacoesVidaUtil() != null && dados.totalTransacoesVidaUtil() > 0) 
-            ? dados.totalTransacoesVidaUtil() 
-            : 3000;
-        
-        return emissaoTotalCicloVida / totalTransacoes;
-    }
-
-    private double calcularImpactoDigital(DadosForm dados) {
-        return (double) dados.numeroTransacoes() * 0.000005;
-    }
 }
-
