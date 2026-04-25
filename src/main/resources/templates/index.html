@@ -109,26 +109,29 @@
 
         <div id="loadingState" class="hidden">Analisando dados ambientais...</div>
 
-        <div id="resultState" class="hidden">
+        <div id="resultState" class="hidden fade-in">
             <div class="resultado-principal">
                 <h3>Emissão Total Acumulada:</h3>
-                <p><span id="valorIndividual">0.00000</span> kg CO₂e</p>
+                <p><span id="valorIndividual">0.00</span> kg CO₂e</p>
             </div>
 
-            <div class="grid-comparacao">
-                <div class="card">
-                    <h4>Cenário Atual (Físico)</h4>
+            <div class="grid-comparacao-3">
+                <div class="card card-atual">
+                    <h4>Emissão Atual</h4>
                     <p><span id="valorFisico">0.00</span> kg</p>
                 </div>
-                <div class="card">
-                    <h4>Cenário Eco (Digital)</h4>
+                <div class="card card-eco">
+                    <h4>Após Migração</h4>
                     <p><span id="valorDigital">0.00</span> kg</p>
+                </div>
+                <div class="card card-reducao">
+                    <h4>Redução Total</h4>
+                    <p><span id="reducaoAbs">0.00</span> kg</p>
                 </div>
             </div>
 
             <div class="alerta-reducao">
-                Sua economia potencial é de <span id="reducaoAbs">0.00</span> kg CO₂e 
-                (<span id="reducaoPct">0</span>%) ao migrar para o digital.
+                Sua economia potencial é de <span id="reducaoPct">0</span>% ao migrar para o digital.
             </div>
 
             <div class="grafico-box">

@@ -185,7 +185,6 @@ button:hover {
     color: var(--danger-red);
 }
 
-/* Card Digital (Verde de sucesso) */
 .grid-comparacao .card:last-child {
     border-top-color: var(--primary-green);
 }
@@ -225,5 +224,42 @@ button:hover {
     
     .resultado-principal p {
         font-size: 2rem;
+    }
+}
+
+.fade-in {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px); 
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0); 
+    }
+}
+
+.grid-comparacao-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.card-atual { border-top-color: var(--danger-red); }
+.card-atual p { color: var(--danger-red); }
+
+.card-eco { border-top-color: var(--primary-green); }
+.card-eco p { color: var(--primary-green); }
+
+.card-reducao { border-top-color: #3498db; } 
+.card-reducao p { color: #3498db; }
+
+@media (max-width: 768px) {
+    .grid-comparacao-3 {
+        grid-template-columns: 1fr; 
     }
 }
