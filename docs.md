@@ -3,36 +3,46 @@
 Esta documentação detalha os endpoints e a estrutura de dados do backend para integração com o frontend.
 
 ## Visão Geral
-O backend é responsável por calcular o impacto ambiental (emissões de CO₂e) de transações financeiras, comparando o uso de cartões físicos versus pagamentos digitais.
+O backend é responsável por calcular o impacto ambiental (emissões de CO₂e) de transações financeiras e uso de cartões, comparando o uso de cartões físicos de diferentes provedores versus pagamentos digitais, além de simular cenários de migração.
 
 ---
 
 ## Modelos de Dados (DTOs)
 
 ### 1. DadosForm
-Objeto enviado pelo frontend com os parâmetros da simulação.
+Objeto enviado pelo frontend para cálculos de impacto baseados no tempo de uso dos cartões.
 
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
-| `numeroTransacoes` | Integer | Quantidade de transações a serem calculadas. |
-| `tipoPagamento` | String | "FISICO" ou "DIGITAL". |
-| `tipoMaterial` | String | (Opcional) PVC virgem, reciclado ou metal. |
-| `pesoMedioCartao` | Double | (Opcional) Peso em gramas (ex: 5.0). |
-| `fatorEmissaoMaterial` | Double | (Opcional) kg CO₂e por kg de material. |
-| `emissoesChipAntena` | Double | (Opcional) Emissões fixas do hardware do cartão. |
-| `distanciaLogistica` | Double | (Opcional) Distância em km para transporte. |
-| `meioTransporte` | String | (Opcional) Meio de transporte utilizado. |
-| `localFabricacao` | String | (Opcional) Local de origem do cartão. |
-| `tempoUsoAnos` | Integer | (Opcional) Vida útil média do cartão. |
-| `transacoesAno` | Integer | (Opcional) Média de transações anuais. |
-| `totalTransacoesVidaUtil`| Integer | (Opcional) Total de transações que o cartão suporta (Padrão: 3000). |
-| `tipoDescarte` | String | (Opcional) Aterro, incineração ou reciclagem. |
-| `fatorEmissaoDescarte` | Double | (Opcional) kg CO₂e associado ao descarte. |
-| `taxaPerdaSubstituicao` | Double | (Opcional) Taxa anual de substituição. |
-| `frequenciaReemissao` | Integer | (Opcional) Frequência em meses. |
+| `cartoes` | List<CartaoInput> | Lista de cartões que o usuário possui/utiliza. |
 
-### 2. ImpactoComparativo
-Retorno do endpoint de comparação.
+### 2. CartaoInput
+Detalhes de um cartão individual.
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `tipo` | String | Tipo/Provedor do cartão (Ex: "VR Benefícios", "Flash", "Benefícios", "Alelo Sodexo"). |
+| `anos` | Double | Tempo de uso do cartão em anos (aceita valores fracionários). |
+
+### 3. SimulacaoRequest
+Parâmetros para a simulação de migração de transações físicas para digitais.
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `transacoes` | Long | Total de transações a serem simuladas. |
+| `percentualDigital` | Double | Percentual das transações que passarão a ser digitais (0 a 100). |
+
+### 4. SimulacaoResponse
+Retorno do endpoint de simulação.
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `emissaoAtual` | Double | Emissão total no cenário atual (100% físico). |
+| `emissaoNova` | Double | Emissão total no cenário simulado com o percentual digital aplicado. |
+| `reducao` | Double | Redução absoluta de emissões (Atual - Nova). |
+
+### 5. ImpactoComparativo
+Retorno do endpoint de comparação de impacto acumulado.
 
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
@@ -41,7 +51,7 @@ Retorno do endpoint de comparação.
 | `reducao` | Double | Diferença absoluta (Fisico - Digital). |
 | `percentualReducao` | Double | Redução em percentual (0 a 100). |
 
-### 3. GraficoImpacto
+### 6. GraficoImpacto
 Estrutura otimizada para bibliotecas de gráficos (ex: Chart.js).
 
 | Campo | Tipo | Descrição |
@@ -54,16 +64,16 @@ Estrutura otimizada para bibliotecas de gráficos (ex: Chart.js).
 
 ## Endpoints API
 
-### 1. Calcular Impacto Individual
-Retorna o valor de emissão para o tipo de pagamento selecionado no `DadosForm`.
+### 1. Calcular Impacto Físico Acumulado
+Retorna o valor de emissão total para os cartões físicos informados.
 
 - **URL:** `/dados`
 - **Método:** `POST`
 - **Corpo (JSON):** `DadosForm`
 - **Resposta:** `String` (Valor formatado com 5 casas decimais).
 
-### 2. Comparar Impactos
-Calcula simultaneamente os dois cenários (Físico e Digital) e retorna a diferença.
+### 2. Comparar Impactos Acumulados
+Calcula simultaneamente o impacto físico dos cartões vs um cenário puramente digital equivalente.
 
 - **URL:** `/comparar`
 - **Método:** `POST`
@@ -71,30 +81,44 @@ Calcula simultaneamente os dois cenários (Físico e Digital) e retorna a difere
 - **Resposta:** `ImpactoComparativo` (JSON).
 
 ### 3. Dados para Gráficos
-Retorna os dados estruturados para exibição visual.
+Retorna os dados estruturados para exibição visual do impacto acumulado.
 
 - **URL:** `/graficos`
 - **Método:** `POST`
 - **Corpo (JSON):** `DadosForm`
 - **Resposta:** `GraficoImpacto` (JSON).
 
+### 4. Simular Migração de Cenários
+Simula a redução de emissões ao migrar um percentual de transações físicas para digitais.
+
+- **URL:** `/simulacao`
+- **Método:** `POST`
+- **Corpo (JSON):** `SimulacaoRequest`
+- **Resposta:** `SimulacaoResponse` (JSON).
+
 ---
 
 ## Lógica de Cálculo (Referência)
 
-### Pagamento Físico
-O cálculo segue o ciclo de vida:
-1.  **Produção:** `(peso / 1000 * fatorMaterial) + emissoesChipAntena`
-2.  **Fim de Vida:** `fatorEmissaoDescarte`
-3.  **Fator por Transação:** `(Produção + Fim de Vida) / totalTransacoesVidaUtil`
-4.  **Resultado Final:** `numeroTransacoes * Fator por Transação`
+### Impacto Físico (Acumulado por Tempo de Uso)
+O cálculo é baseado em fatores específicos por provedor:
+- **VR Benefícios:** 0.02 / ano
+- **Flash:** 0.03 / ano
+- **Benefícios:** 0.025 / ano
+- **Alelo Sodexo:** 0.028 / ano
+- **Fórmula:** `Σ (fator_provedor * anos_uso)`
 
-*Valores padrão (se omitidos):*
-- Emissão Material: 0.0210
-- Chip/Antena: 0.0075
-- Descarte: 0.0102
-- Vida Útil (Transações): 3000
+### Impacto Digital (Cenário Equivalente)
+Utiliza um fator fixo de sustentabilidade digital:
+- **Fator:** 0.005 / ano
+- **Fórmula:** `Σ (0.005 * anos_uso)`
 
-### Pagamento Digital
-Fator fixo baseado em processamento de dados:
-- `numeroTransacoes * 0.000005`
+### Simulação de Migração (Por Transação)
+Regra aplicada no endpoint `/simulacao`:
+- **Fator Físico:** 0.05 / transação
+- **Fator Digital:** 0.005 / transação
+- **Lógica:** 
+  - `transacoes_digitais = total * (percentual / 100)`
+  - `transacoes_fisicas = total - transacoes_digitais`
+  - `emissao_atual = total * 0.05`
+  - `emissao_nova = (transacoes_fisicas * 0.05) + (transacoes_digitais * 0.005)`

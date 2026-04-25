@@ -5,7 +5,6 @@ document.getElementById('btnAddCartao').addEventListener('click', function() {
     const item = document.createElement('div');
     item.className = 'cartao-item';
     
-
     item.innerHTML = `
         <div class="cartao-row">
             <div class="field-group">
@@ -20,7 +19,7 @@ document.getElementById('btnAddCartao').addEventListener('click', function() {
             </div>
             <div class="field-group">
                 <label>Anos de Posse</label>
-                <input type="number" class="anos-cartao" placeholder="Ex: 2" min="1" required>
+                <input type="number" class="anos-cartao" placeholder="Ex: 2.5" min="0" step="any" required>
             </div>
             <button type="button" class="btn-remove" onclick="removerCartao(this)">Remover</button>
         </div>
@@ -42,11 +41,10 @@ function removerCartao(btn) {
 document.getElementById('impactForm').addEventListener('submit', async function(event) {
     event.preventDefault();
 
-
     const cartoes = [];
     document.querySelectorAll('.cartao-item').forEach(item => {
         const tipo = item.querySelector('.tipo-cartao').value;
-        const anos = parseInt(item.querySelector('.anos-cartao').value);
+        const anos = parseFloat(item.querySelector('.anos-cartao').value);
         if (tipo && !isNaN(anos)) {
             cartoes.push({ tipo: tipo, anos: anos });
         }
@@ -67,13 +65,23 @@ document.getElementById('impactForm').addEventListener('submit', async function(
     result.classList.remove('fade-in'); 
 
     try {
-        
+        console.log("Sending payload:", payload);
         const [resIndividual, resComparar, resGrafico] = await Promise.all([
-            fetch('/dados', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(r => r.text()),
-            fetch('/comparar', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(r => r.json()),
-            fetch('/graficos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(r => r.json())
+            fetch('/dados', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(async r => {
+                if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+                return r.text();
+            }),
+            fetch('/comparar', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(async r => {
+                if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+                return r.json();
+            }),
+            fetch('/graficos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(async r => {
+                if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
+                return r.json();
+            })
         ]);
         
+        console.log("Responses received:", {resIndividual, resComparar, resGrafico});
         loading.classList.add('hidden');
         result.classList.remove('hidden');
         result.classList.add('fade-in');
@@ -81,7 +89,6 @@ document.getElementById('impactForm').addEventListener('submit', async function(
         document.getElementById('valorIndividual').innerText = parseFloat(resIndividual).toFixed(5);
         
         renderGrafico(resGrafico);
-
 
         animarContador('valorFisico', resComparar.emissaoFisico, 1500, 5);
         animarContador('valorDigital', resComparar.emissaoDigital, 1500, 5);
@@ -93,17 +100,13 @@ document.getElementById('impactForm').addEventListener('submit', async function(
     } catch (err) {
         console.error("Erro na busca de dados:", err);
         loading.classList.add('hidden');
-        alert("Ocorreu um erro ao processar sua simulação. Verifique se o servidor Spring Boot está rodando.");
+        alert("Ocorreu um erro ao processar sua simulação.");
     }
 });
-
-
-
 
 function renderGrafico(dados) {
     const ctx = document.getElementById('impactoChart').getContext('2d');
     
-  
     if (chartInstance) chartInstance.destroy();
 
     chartInstance = new Chart(ctx, {
@@ -133,32 +136,25 @@ function renderGrafico(dados) {
     });
 }
 
-
 function animarContador(elementId, valorFinal, duracao, casasDecimais) {
     const elemento = document.getElementById(elementId);
     if (!elemento) return;
 
     let tempoInicial = null;
 
-    const passoAnimação = (tempoAtual) => {
+    const passoAnimacao = (tempoAtual) => {
         if (!tempoInicial) tempoInicial = tempoAtual;
-   
         const progresso = Math.min((tempoAtual - tempoInicial) / duracao, 1);
-
         const easingProgresso = 1 - Math.pow(1 - progresso, 3);
-        
         const valorAtual = (easingProgresso * valorFinal).toFixed(casasDecimais);
         elemento.innerText = valorAtual;
 
         if (progresso < 1) {
-            window.requestAnimationFrame(passoAnimação);
+            window.requestAnimationFrame(passoAnimacao);
         } else {
-
             elemento.innerText = valorFinal.toFixed(casasDecimais);
         }
     };
 
-    window.requestAnimationFrame(passoAnimação);
+    window.requestAnimationFrame(passoAnimacao);
 }
-
-

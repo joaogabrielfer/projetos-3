@@ -9,6 +9,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import br.com.edengreen_impact.model.DadosForm;
 import br.com.edengreen_impact.model.ImpactoComparativo;
 import br.com.edengreen_impact.model.GraficoImpacto;
+import br.com.edengreen_impact.model.SimulacaoMigracao;
+import br.com.edengreen_impact.model.SimulacaoRequest;
+import br.com.edengreen_impact.model.SimulacaoResponse;
 import br.com.edengreen_impact.service.ImpactoService;
 
 import java.util.List;
@@ -57,6 +60,17 @@ public class AppController {
             List.of("Físico", "Digital"),
             List.of(fisico, digital),
             Map.of("reducao", fisico - digital)
+        );
+    }
+
+    @PostMapping("/simulacao")
+    @ResponseBody
+    public SimulacaoResponse simularMigracao(@RequestBody SimulacaoRequest request) {
+        SimulacaoMigracao simulacao = new SimulacaoMigracao(request.transacoes(), request.percentualDigital());
+        return new SimulacaoResponse(
+            simulacao.calcularEmissaoAtual(),
+            simulacao.calcularEmissaoNova(),
+            simulacao.calcularReducao()
         );
     }
 }
