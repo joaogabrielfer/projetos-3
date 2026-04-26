@@ -39,8 +39,9 @@ Retorno do endpoint de simulação, incluindo equivalências.
 | :--- | :--- | :--- |
 | `emissaoAtual` | Double | Emissão total no cenário 100% físico dos cartões informados. |
 | `emissaoNova` | Double | Emissão no cenário com o percentual de migração aplicado. |
-| `reducao` | Double | Redução absoluta de emissões (Atual - Nova). |
-| `equivalencias` | Equivalencias | Objeto contendo as conversões ambientais da redução. |
+| `reducao` | Double | Redução absoluta de emissões (Atual - Nova) para o usuário. |
+| `reducaoCidade` | Double | Redução em escala estimada para toda a cidade (ex: 250.000 cartões). |
+| `equivalenciasCidade`| Equivalencias | Objeto contendo as conversões ambientais baseadas na redução da cidade. |
 
 ### 5. Equivalencias
 Conversão da redução de CO₂ em métricas do cotidiano.
@@ -50,25 +51,6 @@ Conversão da redução de CO₂ em métricas do cotidiano.
 | `arvores` | Double | Quantidade de árvores necessárias para absorver esse CO₂ em um ano. |
 | `plastico` | Double | Quantidade equivalente de garrafas plásticas evitadas. |
 | `km` | Double | Quilômetros de carro não percorridos. |
-
-### 6. ImpactoComparativo
-Retorno do endpoint de comparação de impacto acumulado.
-
-| Campo | Tipo | Descrição |
-| :--- | :--- | :--- |
-| `emissaoFisico` | Double | Emissão total calculada para o meio físico. |
-| `emissaoDigital` | Double | Emissão total calculada para o meio digital. |
-| `reducao` | Double | Diferença absoluta (Fisico - Digital). |
-| `percentualReducao` | Double | Redução em percentual (0 a 100). |
-
-### 7. GraficoImpacto
-Estrutura otimizada para bibliotecas de gráficos (ex: Chart.js).
-
-| Campo | Tipo | Descrição |
-| :--- | :--- | :--- |
-| `labels` | List<String> | Rótulos das categorias (ex: ["Físico", "Digital"]). |
-| `values` | List<Double> | Valores correspondentes às emissões. |
-| `extras` | Map<String, Double>| Dados adicionais (ex: {"reducao": 0.045}). |
 
 ---
 
@@ -82,24 +64,8 @@ Retorna o valor de emissão total para os cartões físicos informados.
 - **Corpo (JSON):** `DadosForm`
 - **Resposta:** `String` (Valor formatado com 5 casas decimais).
 
-### 2. Comparar Impactos Acumulados
-Calcula simultaneamente o impacto físico dos cartões vs um cenário puramente digital equivalente.
-
-- **URL:** `/comparar`
-- **Método:** `POST`
-- **Corpo (JSON):** `DadosForm`
-- **Resposta:** `ImpactoComparativo` (JSON).
-
-### 3. Dados para Gráficos
-Retorna os dados estruturados para exibição visual do impacto acumulado.
-
-- **URL:** `/graficos`
-- **Método:** `POST`
-- **Corpo (JSON):** `DadosForm`
-- **Resposta:** `GraficoImpacto` (JSON).
-
-### 4. Simular Migração de Cenários
-Simula a redução de emissões e calcula equivalências ao aplicar um percentual de migração sobre a configuração de cartões informada.
+### 2. Simular Migração de Cenários
+Simula a redução de emissões e calcula equivalências ao aplicar um percentual de migração sobre a configuração de cartões informada, dimensionando o impacto visual global (toda a cidade).
 
 - **URL:** `/simulacao`
 - **Método:** `POST`

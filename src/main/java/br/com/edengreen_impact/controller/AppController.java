@@ -7,15 +7,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.beans.factory.annotation.Autowired;
 import br.com.edengreen_impact.model.DadosForm;
-import br.com.edengreen_impact.model.ImpactoComparativo;
-import br.com.edengreen_impact.model.GraficoImpacto;
-import br.com.edengreen_impact.model.SimulacaoMigracao;
 import br.com.edengreen_impact.model.SimulacaoRequest;
 import br.com.edengreen_impact.model.SimulacaoResponse;
 import br.com.edengreen_impact.service.ImpactoService;
-
-import java.util.List;
-import java.util.Map;
 
 @Controller
 public class AppController {
@@ -39,30 +33,6 @@ public class AppController {
         return String.format(java.util.Locale.US, "%.5f", res);
     }
 
-    @PostMapping("/comparar")
-    @ResponseBody
-    public ImpactoComparativo compararImpactos(@RequestBody DadosForm dados) {
-        double fisico = impactoService.calcularImpactoFisico(dados);
-        double digital = impactoService.calcularImpactoDigital(dados);
-        double reducao = fisico - digital;
-        double percentual = (fisico > 0) ? (reducao / fisico) * 100 : 0;
-
-        return new ImpactoComparativo(fisico, digital, reducao, percentual);
-    }
-
-    @PostMapping("/graficos")
-    @ResponseBody
-    public GraficoImpacto obterDadosGraficos(@RequestBody DadosForm dados) {
-        double fisico = impactoService.calcularImpactoFisico(dados);
-        double digital = impactoService.calcularImpactoDigital(dados);
-        
-        return new GraficoImpacto(
-            List.of("Físico", "Digital"),
-            List.of(fisico, digital),
-            Map.of("reducao", fisico - digital)
-        );
-    }
-
     @PostMapping("/simulacao")
     @ResponseBody
     public SimulacaoResponse simularMigracao(@RequestBody SimulacaoRequest request) {
@@ -74,11 +44,20 @@ public class AppController {
         double emissaoNova = (fisico * (1 - pct)) + (digital100 * pct);
         double reducao = fisico - emissaoNova;
         
+        // Redução potencial máxima da cidade (100% migração)
+        double reducaoPotencialIndividual = fisico - digital100;
+        double reducaoCidade = 0;
+        if (request.cartoes() != null && !request.cartoes().isEmpty()) {
+            double fator = 250000.0 / request.cartoes().size();
+            reducaoCidade = reducaoPotencialIndividual * fator;
+        }
+
         return new SimulacaoResponse(
             fisico,
             emissaoNova,
             reducao,
-            impactoService.calcularEquivalencias(reducao)
+            reducaoCidade,
+            impactoService.calcularEquivalencias(reducaoCidade)
         );
     }
 }

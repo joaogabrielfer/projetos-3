@@ -86,7 +86,8 @@ document.getElementById('impactForm').addEventListener('submit', async function(
             emissaoFisico: resSimulacao.emissaoAtual,
             emissaoSimulada: resSimulacao.emissaoNova,
             reducaoSimulada: resSimulacao.reducao,
-            equivalencias: resSimulacao.equivalencias
+            reducaoCidade: resSimulacao.reducaoCidade,
+            equivalenciasCidade: resSimulacao.equivalenciasCidade
         };
 
         loading.classList.add('hidden');
@@ -107,7 +108,9 @@ function atualizarDashboardSimulado(animarLongo) {
     const emissaoSimulada = backendDataCache.emissaoSimulada;
     const reducaoSimulada = backendDataCache.reducaoSimulada;
     const reducaoPctSimulada = fisico > 0 ? (reducaoSimulada / fisico) * 100 : 0;
-    const equivalencias = backendDataCache.equivalencias;
+    
+    const reducaoCidade = backendDataCache.reducaoCidade;
+    const equivalencias = backendDataCache.equivalenciasCidade;
 
     const duracao = animarLongo ? 1500 : 300;
     document.getElementById('valorIndividual').innerText = backendDataCache.resIndividual.toFixed(5);
@@ -116,11 +119,17 @@ function atualizarDashboardSimulado(animarLongo) {
     animarContador('reducaoAbs', reducaoSimulada, duracao, 5);
     animarContador('reducaoPct', reducaoPctSimulada, duracao, 1);
     
-    animarContador('eqArvores', equivalencias.arvores, duracao, 1);
+    animarContador('reducaoAbsCidade', reducaoCidade, duracao, 2);
+    
+    animarContador('eqArvores', equivalencias.arvores, duracao, 0);
     animarContador('eqPlastico', equivalencias.plastico, duracao, 0);
-    animarContador('eqKm', equivalencias.km, duracao, 1);
+    animarContador('eqKm', equivalencias.km, duracao, 0);
 
     renderGrafico({ labels: ['Cenário Atual', 'Simulado'], values: [fisico, emissaoSimulada] }, animarLongo);
+    
+    // Ativa a animação lateral
+    document.getElementById('side-panel-left').classList.add('active');
+    document.getElementById('side-panel-right').classList.add('active');
 }
 
 function renderGrafico(dados, animarLongo) {
@@ -135,6 +144,31 @@ function renderGrafico(dados, animarLongo) {
         options: { animation: { duration: animarLongo ? 1000 : 200 }, plugins: { legend: { display: false } } }
     });
 }
+
+function inicializarPaineisLaterais() {
+    const left = document.getElementById('side-panel-left');
+    const right = document.getElementById('side-panel-right');
+    const trees = ['🌳', '🌲', '🌴', '🌿'];
+    
+    for (let i = 0; i < 5; i++) {
+        const t1 = document.createElement('div');
+        t1.className = 'tree-container';
+        t1.innerText = trees[i % trees.length];
+        t1.style.transitionDelay = `${i * 0.2}s`;
+        left.appendChild(t1);
+        
+        const t2 = document.createElement('div');
+        t2.className = 'tree-container';
+        t2.innerText = trees[(i + 1) % trees.length];
+        t2.style.transitionDelay = `${i * 0.2}s`;
+        right.appendChild(t2);
+    }
+}
+
+// Chamar uma vez para definir o estado inicial
+window.addEventListener('DOMContentLoaded', () => {
+    inicializarPaineisLaterais();
+});
 
 function animarContador(id, fim, dur, casas) {
     const el = document.getElementById(id);

@@ -88,8 +88,13 @@
                 Com <span id="displayPctMigracao">100</span>% de migração, sua economia é de <span id="reducaoPct">0</span>%.
             </div>
 
+            <div class="grafico-box" style="margin-bottom: 25px; padding: 25px; height: auto;">
+                <canvas id="impactoChart"></canvas>
+            </div>
+
             <div class="equivalencias-container">
-                <h3>O que essa redução significa na prática?</h3>
+                <h3>Caso Recife toda mudasse do físico para o digital:</h3>
+                <p style="margin-bottom: 20px; font-size: 1.1rem;">Redução estimada para a cidade: <strong style="color: #3498db;"><span id="reducaoAbsCidade">0.00</span> kg CO₂e</strong></p>
                 <div class="grid-equivalencias">
                     <div class="equiv-card">
                         <div class="icon">🌳</div>
@@ -109,11 +114,13 @@
                 </div>
             </div>
 
-            <div class="grafico-box">
-                <canvas id="impactoChart"></canvas>
-            </div>
         </div>
     </div>
+
+    <!-- Painéis Laterais para Animação de Verde -->
+    <div id="side-panel-left" class="side-panel"></div>
+    <div id="side-panel-right" class="side-panel"></div>
+
     <script th:src="@{/script.js}"></script>
 </body>
 </html>
