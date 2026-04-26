@@ -1,10 +1,10 @@
 let chartInstance = null;
+let backendDataCache = null;
 
 document.getElementById('btnAddCartao').addEventListener('click', function() {
     const container = document.getElementById('cartoesContainer');
     const item = document.createElement('div');
     item.className = 'cartao-item';
-    
     item.innerHTML = `
         <div class="cartao-row">
             <div class="field-group">
@@ -29,132 +29,108 @@ document.getElementById('btnAddCartao').addEventListener('click', function() {
 
 function removerCartao(btn) {
     const item = btn.closest('.cartao-item');
-
     if (document.querySelectorAll('.cartao-item').length > 1) {
         item.remove();
     } else {
-        alert("Você precisa informar pelo menos um cartão para a simulação.");
+        alert("Você precisa informar pelo menos um cartão.");
     }
 }
 
+const sliderMigracao = document.getElementById('percentualMigracao');
+const labelMigracao = document.getElementById('percentualLabel');
+
+sliderMigracao.addEventListener('input', function() {
+    labelMigracao.innerText = this.value;
+    document.getElementById('displayPctMigracao').innerText = this.value;
+    if (backendDataCache) {
+        atualizarDashboardSimulado(false);
+    }
+});
 
 document.getElementById('impactForm').addEventListener('submit', async function(event) {
     event.preventDefault();
-
     const cartoes = [];
     document.querySelectorAll('.cartao-item').forEach(item => {
         const tipo = item.querySelector('.tipo-cartao').value;
         const anos = parseFloat(item.querySelector('.anos-cartao').value);
-        if (tipo && !isNaN(anos)) {
-            cartoes.push({ tipo: tipo, anos: anos });
-        }
+        if (tipo && !isNaN(anos)) cartoes.push({ tipo, anos });
     });
-
-    if (cartoes.length === 0) {
-        alert("Por favor, preencha os dados de pelo menos um cartão.");
-        return;
-    }
-
-    const payload = { cartoes: cartoes };
 
     const loading = document.getElementById('loadingState');
     const result = document.getElementById('resultState');
-    
     loading.classList.remove('hidden');
     result.classList.add('hidden');
-    result.classList.remove('fade-in'); 
 
     try {
-        console.log("Sending payload:", payload);
         const [resIndividual, resComparar, resGrafico] = await Promise.all([
-            fetch('/dados', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(async r => {
-                if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
-                return r.text();
-            }),
-            fetch('/comparar', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(async r => {
-                if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
-                return r.json();
-            }),
-            fetch('/graficos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload) }).then(async r => {
-                if (!r.ok) throw new Error(`HTTP error! status: ${r.status}`);
-                return r.json();
-            })
+            fetch('/dados', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ cartoes }) }).then(r => r.text()),
+            fetch('/comparar', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ cartoes }) }).then(r => r.json()),
+            fetch('/graficos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ cartoes }) }).then(r => r.json())
         ]);
-        
-        console.log("Responses received:", {resIndividual, resComparar, resGrafico});
+
+        backendDataCache = {
+            resIndividual: parseFloat(resIndividual),
+            emissaoFisico: resComparar.emissaoFisico,
+            emissaoDigital100: resComparar.emissaoDigital
+        };
+
         loading.classList.add('hidden');
         result.classList.remove('hidden');
         result.classList.add('fade-in');
-
-        document.getElementById('valorIndividual').innerText = parseFloat(resIndividual).toFixed(5);
-        
-        renderGrafico(resGrafico);
-
-        animarContador('valorFisico', resComparar.emissaoFisico, 1500, 5);
-        animarContador('valorDigital', resComparar.emissaoDigital, 1500, 5);
-        animarContador('reducaoAbs', resComparar.reducao, 2000, 5); 
-        animarContador('reducaoPct', resComparar.percentualReducao, 2000, 2);
-
+        atualizarDashboardSimulado(true);
         result.scrollIntoView({ behavior: 'smooth', block: 'start' });
-
     } catch (err) {
-        console.error("Erro na busca de dados:", err);
         loading.classList.add('hidden');
-        alert("Ocorreu um erro ao processar sua simulação.");
+        alert("Erro ao processar simulação.");
     }
 });
 
-function renderGrafico(dados) {
-    const ctx = document.getElementById('impactoChart').getContext('2d');
-    
-    if (chartInstance) chartInstance.destroy();
+function atualizarDashboardSimulado(animarLongo) {
+    if (!backendDataCache) return;
+    const pct = parseInt(sliderMigracao.value) / 100;
+    const fisico = backendDataCache.emissaoFisico;
+    const digital100 = backendDataCache.emissaoDigital100;
+    const emissaoSimulada = (fisico * (1 - pct)) + (digital100 * pct);
+    const reducaoSimulada = fisico - emissaoSimulada;
+    const reducaoPctSimulada = fisico > 0 ? (reducaoSimulada / fisico) * 100 : 0;
 
+    const duracao = animarLongo ? 1500 : 300;
+    document.getElementById('valorIndividual').innerText = backendDataCache.resIndividual.toFixed(5);
+    animarContador('valorFisico', fisico, duracao, 5);
+    animarContador('valorDigital', emissaoSimulada, duracao, 5);
+    animarContador('reducaoAbs', reducaoSimulada, duracao, 5);
+    animarContador('reducaoPct', reducaoPctSimulada, duracao, 1);
+    
+    animarContador('eqArvores', reducaoSimulada / 21, duracao, 1);
+    animarContador('eqPlastico', reducaoSimulada / 0.082, duracao, 0);
+    animarContador('eqKm', reducaoSimulada / 0.120, duracao, 1);
+
+    renderGrafico({ labels: ['Cenário Atual', 'Simulado'], values: [fisico, emissaoSimulada] }, animarLongo);
+}
+
+function renderGrafico(dados, animarLongo) {
+    const ctx = document.getElementById('impactoChart').getContext('2d');
+    if (chartInstance) chartInstance.destroy();
     chartInstance = new Chart(ctx, {
         type: 'bar',
         data: {
             labels: dados.labels,
-            datasets: [{
-                label: 'kg CO₂e',
-                data: dados.values,
-                backgroundColor: ['#e74c3c', '#2ecc71'], 
-                borderColor: ['#c0392b', '#27ae60'],
-                borderWidth: 1
-            }]
+            datasets: [{ label: 'kg CO₂e', data: dados.values, backgroundColor: ['#e74c3c', '#3498db'], borderRadius: 5 }]
         },
-        options: { 
-            responsive: true,
-            plugins: {
-                legend: { display: false }
-            },
-            scales: {
-                y: { 
-                    beginAtZero: true,
-                    title: { display: true, text: 'Emissão (kg CO₂e)' }
-                }
-            }
-        }
+        options: { animation: { duration: animarLongo ? 1000 : 200 }, plugins: { legend: { display: false } } }
     });
 }
 
-function animarContador(elementId, valorFinal, duracao, casasDecimais) {
-    const elemento = document.getElementById(elementId);
-    if (!elemento) return;
-
-    let tempoInicial = null;
-
-    const passoAnimacao = (tempoAtual) => {
-        if (!tempoInicial) tempoInicial = tempoAtual;
-        const progresso = Math.min((tempoAtual - tempoInicial) / duracao, 1);
-        const easingProgresso = 1 - Math.pow(1 - progresso, 3);
-        const valorAtual = (easingProgresso * valorFinal).toFixed(casasDecimais);
-        elemento.innerText = valorAtual;
-
-        if (progresso < 1) {
-            window.requestAnimationFrame(passoAnimacao);
-        } else {
-            elemento.innerText = valorFinal.toFixed(casasDecimais);
-        }
+function animarContador(id, fim, dur, casas) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let ini = null;
+    const step = (t) => {
+        if (!ini) ini = t;
+        const prog = Math.min((t - ini) / dur, 1);
+        el.innerText = ((1 - Math.pow(1 - prog, 3)) * fim).toFixed(casas);
+        if (prog < 1) window.requestAnimationFrame(step);
     };
-
-    window.requestAnimationFrame(passoAnimacao);
+    window.requestAnimationFrame(step);
 }
+

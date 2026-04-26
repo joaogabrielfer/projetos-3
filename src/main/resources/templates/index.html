@@ -6,67 +6,15 @@
     <link rel="stylesheet" th:href="@{/style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        .cartao-item {
-            background: #f9f9f9;
-            padding: 15px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-            border: 1px solid #eee;
-            position: relative;
-        }
-        .cartao-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr auto;
-            gap: 15px;
-            align-items: end;
-        }
-        .field-group {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-        }
-        .field-group label {
-            margin-bottom: 0;
-            font-size: 0.85rem;
-            color: var(--text-muted);
-        }
-        .btn-remove {
-            background-color: var(--danger-red);
-            color: white;
-            border: none;
-            padding: 12px;
-            cursor: pointer;
-            border-radius: 8px;
-            height: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            transition: opacity 0.3s;
-        }
-        .btn-remove:hover {
-            opacity: 0.8;
-            transform: none;
-            box-shadow: none;
-        }
-        .btn-add {
-            background-color: #3498db;
-            color: white;
-            border: none;
-            padding: 12px;
-            cursor: pointer;
-            border-radius: 8px;
-            margin-bottom: 25px;
-            width: auto;
-            display: inline-block;
-        }
-        .btn-add:hover {
-            background-color: #2980b9;
-        }
-        #cartoesContainer h3 {
-            margin-bottom: 15px;
-            color: var(--dark-green);
-        }
+        .cartao-item { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; position: relative; }
+        .cartao-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end; }
+        .field-group { display: flex; flex-direction: column; gap: 5px; }
+        .field-group label { margin-bottom: 0; font-size: 0.85rem; color: var(--text-muted); }
+        .btn-remove { background-color: var(--danger-red); color: white; border: none; padding: 12px; cursor: pointer; border-radius: 8px; height: 46px; display: flex; align-items: center; justify-content: center; font-weight: bold; transition: opacity 0.3s; }
+        .btn-remove:hover { opacity: 0.8; }
+        .btn-add { background-color: #3498db; color: white; border: none; padding: 12px; cursor: pointer; border-radius: 8px; margin-bottom: 25px; width: auto; display: inline-block; }
+        .btn-add:hover { background-color: #2980b9; }
+        #cartoesContainer h3 { margin-bottom: 15px; color: var(--dark-green); }
     </style>
 </head>
 <body>
@@ -79,7 +27,6 @@
         <form id="impactForm">
             <div id="cartoesContainer">
                 <h3>Seus Cartões Físicos</h3>
-                <!-- Template inicial -->
                 <div class="cartao-item">
                     <div class="cartao-row">
                         <div class="field-group">
@@ -102,6 +49,13 @@
             </div>
             
             <button type="button" class="btn-add" id="btnAddCartao">+ Adicionar Outro Cartão</button>
+            
+            <div class="slider-box">
+                <label>Nível de migração para o Digital: <span id="percentualLabel">100</span>%</label>
+                <input type="range" id="percentualMigracao" min="0" max="100" value="100" class="slider">
+                <p class="slider-hint">Arraste para simular cenários híbridos.</p>
+            </div>
+
             <div style="margin-top: 20px;">
                 <button type="submit">Calcular Impacto Total</button>
             </div>
@@ -121,7 +75,7 @@
                     <p><span id="valorFisico">0.00</span> kg</p>
                 </div>
                 <div class="card card-eco">
-                    <h4>Após Migração</h4>
+                    <h4>Cenário Simulado</h4>
                     <p><span id="valorDigital">0.00</span> kg</p>
                 </div>
                 <div class="card card-reducao">
@@ -131,7 +85,28 @@
             </div>
 
             <div class="alerta-reducao">
-                Sua economia potencial é de <span id="reducaoPct">0</span>% ao migrar para o digital.
+                Com <span id="displayPctMigracao">100</span>% de migração, sua economia é de <span id="reducaoPct">0</span>%.
+            </div>
+
+            <div class="equivalencias-container">
+                <h3>O que essa redução significa na prática?</h3>
+                <div class="grid-equivalencias">
+                    <div class="equiv-card">
+                        <div class="icon">🌳</div>
+                        <p><strong id="eqArvores">0</strong> árvores</p>
+                        <small>absorvendo CO₂ no ano</small>
+                    </div>
+                    <div class="equiv-card">
+                        <div class="icon">🍾</div>
+                        <p><strong id="eqPlastico">0</strong> garrafas</p>
+                        <small>de plástico evitadas</small>
+                    </div>
+                    <div class="equiv-card">
+                        <div class="icon">🚗</div>
+                        <p><strong id="eqKm">0</strong> km</p>
+                        <small>de carro não rodados</small>
+                    </div>
+                </div>
             </div>
 
             <div class="grafico-box">
