@@ -66,11 +66,19 @@ public class AppController {
     @PostMapping("/simulacao")
     @ResponseBody
     public SimulacaoResponse simularMigracao(@RequestBody SimulacaoRequest request) {
-        SimulacaoMigracao simulacao = new SimulacaoMigracao(request.transacoes(), request.percentualDigital());
+        DadosForm dados = new DadosForm(request.cartoes());
+        double fisico = impactoService.calcularImpactoFisico(dados);
+        double digital100 = impactoService.calcularImpactoDigital(dados);
+        
+        double pct = request.percentualMigracao() / 100.0;
+        double emissaoNova = (fisico * (1 - pct)) + (digital100 * pct);
+        double reducao = fisico - emissaoNova;
+        
         return new SimulacaoResponse(
-            simulacao.calcularEmissaoAtual(),
-            simulacao.calcularEmissaoNova(),
-            simulacao.calcularReducao()
+            fisico,
+            emissaoNova,
+            reducao,
+            impactoService.calcularEquivalencias(reducao)
         );
     }
 }

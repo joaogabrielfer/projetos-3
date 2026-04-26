@@ -32,4 +32,12 @@ public class ImpactoService {
         }
         return total;
     }
+
+    public br.com.edengreen_impact.model.Equivalencias calcularEquivalencias(double reducaoCO2) {
+        return new br.com.edengreen_impact.model.Equivalencias(
+            reducaoCO2 / 21.0,
+            reducaoCO2 / 0.082,
+            reducaoCO2 / 0.120
+        );
+    }
 }

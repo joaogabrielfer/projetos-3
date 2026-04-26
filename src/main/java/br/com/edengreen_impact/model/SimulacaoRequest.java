@@ -1,3 +1,5 @@
 package br.com.edengreen_impact.model;
 
-public record SimulacaoRequest(long transacoes, double percentualDigital) {}
+import java.util.List;
+
+public record SimulacaoRequest(List<CartaoInput> cartoes, double percentualMigracao) {}

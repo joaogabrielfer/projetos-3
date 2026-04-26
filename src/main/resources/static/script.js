@@ -1,6 +1,16 @@
 let chartInstance = null;
 let backendDataCache = null;
 
+function marcarComoDesatualizado() {
+    const result = document.getElementById('resultState');
+    if (!result.classList.contains('hidden')) {
+        result.classList.add('desatualizado');
+    }
+}
+
+document.getElementById('cartoesContainer').addEventListener('change', marcarComoDesatualizado);
+document.getElementById('cartoesContainer').addEventListener('input', marcarComoDesatualizado);
+
 document.getElementById('btnAddCartao').addEventListener('click', function() {
     const container = document.getElementById('cartoesContainer');
     const item = document.createElement('div');
@@ -25,12 +35,14 @@ document.getElementById('btnAddCartao').addEventListener('click', function() {
         </div>
     `;
     container.appendChild(item);
+    marcarComoDesatualizado();
 });
 
 function removerCartao(btn) {
     const item = btn.closest('.cartao-item');
     if (document.querySelectorAll('.cartao-item').length > 1) {
         item.remove();
+        marcarComoDesatualizado();
     } else {
         alert("Você precisa informar pelo menos um cartão.");
     }
@@ -43,7 +55,7 @@ sliderMigracao.addEventListener('input', function() {
     labelMigracao.innerText = this.value;
     document.getElementById('displayPctMigracao').innerText = this.value;
     if (backendDataCache) {
-        atualizarDashboardSimulado(false);
+        marcarComoDesatualizado();
     }
 });
 
@@ -55,6 +67,8 @@ document.getElementById('impactForm').addEventListener('submit', async function(
         const anos = parseFloat(item.querySelector('.anos-cartao').value);
         if (tipo && !isNaN(anos)) cartoes.push({ tipo, anos });
     });
+    
+    const percentualMigracao = parseFloat(sliderMigracao.value);
 
     const loading = document.getElementById('loadingState');
     const result = document.getElementById('resultState');
@@ -62,20 +76,21 @@ document.getElementById('impactForm').addEventListener('submit', async function(
     result.classList.add('hidden');
 
     try {
-        const [resIndividual, resComparar, resGrafico] = await Promise.all([
+        const [resIndividual, resSimulacao] = await Promise.all([
             fetch('/dados', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ cartoes }) }).then(r => r.text()),
-            fetch('/comparar', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ cartoes }) }).then(r => r.json()),
-            fetch('/graficos', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ cartoes }) }).then(r => r.json())
+            fetch('/simulacao', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ cartoes, percentualMigracao }) }).then(r => r.json())
         ]);
 
         backendDataCache = {
             resIndividual: parseFloat(resIndividual),
-            emissaoFisico: resComparar.emissaoFisico,
-            emissaoDigital100: resComparar.emissaoDigital
+            emissaoFisico: resSimulacao.emissaoAtual,
+            emissaoSimulada: resSimulacao.emissaoNova,
+            reducaoSimulada: resSimulacao.reducao,
+            equivalencias: resSimulacao.equivalencias
         };
 
         loading.classList.add('hidden');
-        result.classList.remove('hidden');
+        result.classList.remove('hidden', 'desatualizado');
         result.classList.add('fade-in');
         atualizarDashboardSimulado(true);
         result.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -87,12 +102,12 @@ document.getElementById('impactForm').addEventListener('submit', async function(
 
 function atualizarDashboardSimulado(animarLongo) {
     if (!backendDataCache) return;
-    const pct = parseInt(sliderMigracao.value) / 100;
+    
     const fisico = backendDataCache.emissaoFisico;
-    const digital100 = backendDataCache.emissaoDigital100;
-    const emissaoSimulada = (fisico * (1 - pct)) + (digital100 * pct);
-    const reducaoSimulada = fisico - emissaoSimulada;
+    const emissaoSimulada = backendDataCache.emissaoSimulada;
+    const reducaoSimulada = backendDataCache.reducaoSimulada;
     const reducaoPctSimulada = fisico > 0 ? (reducaoSimulada / fisico) * 100 : 0;
+    const equivalencias = backendDataCache.equivalencias;
 
     const duracao = animarLongo ? 1500 : 300;
     document.getElementById('valorIndividual').innerText = backendDataCache.resIndividual.toFixed(5);
@@ -101,9 +116,9 @@ function atualizarDashboardSimulado(animarLongo) {
     animarContador('reducaoAbs', reducaoSimulada, duracao, 5);
     animarContador('reducaoPct', reducaoPctSimulada, duracao, 1);
     
-    animarContador('eqArvores', reducaoSimulada / 21, duracao, 1);
-    animarContador('eqPlastico', reducaoSimulada / 0.082, duracao, 0);
-    animarContador('eqKm', reducaoSimulada / 0.120, duracao, 1);
+    animarContador('eqArvores', equivalencias.arvores, duracao, 1);
+    animarContador('eqPlastico', equivalencias.plastico, duracao, 0);
+    animarContador('eqKm', equivalencias.km, duracao, 1);
 
     renderGrafico({ labels: ['Cenário Atual', 'Simulado'], values: [fisico, emissaoSimulada] }, animarLongo);
 }
@@ -133,4 +148,3 @@ function animarContador(id, fim, dur, casas) {
     };
     window.requestAnimationFrame(step);
 }
-

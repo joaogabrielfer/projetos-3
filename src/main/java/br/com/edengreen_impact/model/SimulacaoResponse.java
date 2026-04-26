@@ -1,3 +1,3 @@
 package br.com.edengreen_impact.model;
 
-public record SimulacaoResponse(double emissaoAtual, double emissaoNova, double reducao) {}
+public record SimulacaoResponse(double emissaoAtual, double emissaoNova, double reducao, Equivalencias equivalencias) {}

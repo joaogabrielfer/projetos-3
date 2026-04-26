@@ -3,7 +3,7 @@
 Esta documentação detalha os endpoints e a estrutura de dados do backend para integração com o frontend.
 
 ## Visão Geral
-O backend é responsável por calcular o impacto ambiental (emissões de CO₂e) de transações financeiras e uso de cartões, comparando o uso de cartões físicos de diferentes provedores versus pagamentos digitais, além de simular cenários de migração.
+O backend é responsável por calcular o impacto ambiental (emissões de CO₂e) de transações financeiras e uso de cartões, comparando o uso de cartões físicos de diferentes provedores versus pagamentos digitais, além de simular cenários de migração e fornecer equivalências ambientais.
 
 ---
 
@@ -25,23 +25,33 @@ Detalhes de um cartão individual.
 | `anos` | Double | Tempo de uso do cartão em anos (aceita valores fracionários). |
 
 ### 3. SimulacaoRequest
-Parâmetros para a simulação de migração de transações físicas para digitais.
+Parâmetros para a simulação de migração para o digital baseada nos cartões atuais.
 
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
-| `transacoes` | Long | Total de transações a serem simuladas. |
-| `percentualDigital` | Double | Percentual das transações que passarão a ser digitais (0 a 100). |
+| `cartoes` | List<CartaoInput> | Lista de cartões para basear o cálculo de emissão. |
+| `percentualMigracao` | Double | Nível de migração para o digital desejado (0 a 100). |
 
 ### 4. SimulacaoResponse
-Retorno do endpoint de simulação.
+Retorno do endpoint de simulação, incluindo equivalências.
 
 | Campo | Tipo | Descrição |
 | :--- | :--- | :--- |
-| `emissaoAtual` | Double | Emissão total no cenário atual (100% físico). |
-| `emissaoNova` | Double | Emissão total no cenário simulado com o percentual digital aplicado. |
+| `emissaoAtual` | Double | Emissão total no cenário 100% físico dos cartões informados. |
+| `emissaoNova` | Double | Emissão no cenário com o percentual de migração aplicado. |
 | `reducao` | Double | Redução absoluta de emissões (Atual - Nova). |
+| `equivalencias` | Equivalencias | Objeto contendo as conversões ambientais da redução. |
 
-### 5. ImpactoComparativo
+### 5. Equivalencias
+Conversão da redução de CO₂ em métricas do cotidiano.
+
+| Campo | Tipo | Descrição |
+| :--- | :--- | :--- |
+| `arvores` | Double | Quantidade de árvores necessárias para absorver esse CO₂ em um ano. |
+| `plastico` | Double | Quantidade equivalente de garrafas plásticas evitadas. |
+| `km` | Double | Quilômetros de carro não percorridos. |
+
+### 6. ImpactoComparativo
 Retorno do endpoint de comparação de impacto acumulado.
 
 | Campo | Tipo | Descrição |
@@ -51,7 +61,7 @@ Retorno do endpoint de comparação de impacto acumulado.
 | `reducao` | Double | Diferença absoluta (Fisico - Digital). |
 | `percentualReducao` | Double | Redução em percentual (0 a 100). |
 
-### 6. GraficoImpacto
+### 7. GraficoImpacto
 Estrutura otimizada para bibliotecas de gráficos (ex: Chart.js).
 
 | Campo | Tipo | Descrição |
@@ -89,7 +99,7 @@ Retorna os dados estruturados para exibição visual do impacto acumulado.
 - **Resposta:** `GraficoImpacto` (JSON).
 
 ### 4. Simular Migração de Cenários
-Simula a redução de emissões ao migrar um percentual de transações físicas para digitais.
+Simula a redução de emissões e calcula equivalências ao aplicar um percentual de migração sobre a configuração de cartões informada.
 
 - **URL:** `/simulacao`
 - **Método:** `POST`
@@ -113,12 +123,15 @@ Utiliza um fator fixo de sustentabilidade digital:
 - **Fator:** 0.005 / ano
 - **Fórmula:** `Σ (0.005 * anos_uso)`
 
-### Simulação de Migração (Por Transação)
-Regra aplicada no endpoint `/simulacao`:
-- **Fator Físico:** 0.05 / transação
-- **Fator Digital:** 0.005 / transação
+### Simulação de Migração
 - **Lógica:** 
-  - `transacoes_digitais = total * (percentual / 100)`
-  - `transacoes_fisicas = total - transacoes_digitais`
-  - `emissao_atual = total * 0.05`
-  - `emissao_nova = (transacoes_fisicas * 0.05) + (transacoes_digitais * 0.005)`
+  - `emissao_fisica_100 = impacto_fisico(cartoes)`
+  - `emissao_digital_100 = impacto_digital(cartoes)`
+  - `pct = percentualMigracao / 100`
+  - `emissao_nova = (emissao_fisica_100 * (1 - pct)) + (emissao_digital_100 * pct)`
+
+### Fatores de Equivalência
+Baseados na redução de CO₂e (kg):
+- **Árvores:** `reducao / 21.0`
+- **Plástico:** `reducao / 0.082`
+- **KM de Carro:** `reducao / 0.120`
