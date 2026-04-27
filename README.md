@@ -17,7 +17,7 @@ O coração da plataforma é uma calculadora de impacto ambiental. Ela traduz a 
 - **Prototipação e UI/UX:** Figma
 - **Backend:** Spring Boot/Java
 - **Frontend:** Thymeleaf
-- **Banco de Dados:** ...
+- **Banco de Dados:** H2 Database
 
 ### Links:
 - **Quadro de Tarefas:** [trello](https://trello.com/b/23n4xjVa/projetos-3)
