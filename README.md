@@ -104,6 +104,11 @@ Para garantir a organização e evitar conflitos no código, a equipe utiliza um
 - UH04 - Visualizar resultados em gráfico 
 ---
 
+**3ª Sprint (...)**
+- UH05 - Simular Cenários de Migração
+- UH06 - Visualizar Equivalências Ambientais 
+---
+
 
 ## 📋 Quadro de Tarefas (Status Atual)
 
