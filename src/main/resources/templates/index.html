@@ -5,6 +5,8 @@
     <title>EdenGreen Impact - Dashboard</title>
     <link rel="stylesheet" th:href="@{/style.css}">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
     <style>
         .cartao-item { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px solid #eee; position: relative; }
         .cartao-row { display: grid; grid-template-columns: 1fr 1fr auto; gap: 15px; align-items: end; }
@@ -64,52 +66,67 @@
         <div id="loadingState" class="hidden">Analisando dados ambientais...</div>
 
         <div id="resultState" class="hidden fade-in">
-            <div class="resultado-principal">
-                <h3>Emissão Total Acumulada:</h3>
-                <p><span id="valorIndividual">0.00</span> kg CO₂e</p>
-            </div>
-
-            <div class="grid-comparacao-3">
-                <div class="card card-atual">
-                    <h4>Emissão Atual</h4>
-                    <p><span id="valorFisico">0.00</span> kg</p>
+            
+            <div id="areaRelatorio">
+                <div class="resultado-principal">
+                    <h3>Emissão Total Acumulada:</h3>
+                    <p><span id="valorIndividual">0.00</span> kg CO₂e</p>
                 </div>
-                <div class="card card-eco">
-                    <h4>Cenário Simulado</h4>
-                    <p><span id="valorDigital">0.00</span> kg</p>
-                </div>
-                <div class="card card-reducao">
-                    <h4>Redução Total</h4>
-                    <p><span id="reducaoAbs">0.00</span> kg</p>
-                </div>
-            </div>
 
-            <div class="alerta-reducao">
-                Com <span id="displayPctMigracao">100</span>% de migração, sua economia é de <span id="reducaoPct">0</span>%.
-            </div>
-
-            <div class="grafico-box" style="margin-bottom: 25px; padding: 25px; height: auto;">
-                <canvas id="impactoChart"></canvas>
-            </div>
-
-            <div class="equivalencias-container">
-                <h3>Caso Recife toda mudasse do físico para o digital:</h3>
-                <p style="margin-bottom: 20px; font-size: 1.1rem;">Redução estimada para a cidade: <strong style="color: #3498db;"><span id="reducaoAbsCidade">0.00</span> kg CO₂e</strong></p>
-                <div class="grid-equivalencias">
-                    <div class="equiv-card">
-                        <div class="icon">🌳</div>
-                        <p><strong id="eqArvores">0</strong> árvores</p>
-                        <small>absorvendo CO₂ no ano</small>
+                <div class="grid-comparacao-3">
+                    <div class="card card-atual">
+                        <h4>Emissão Atual</h4>
+                        <p><span id="valorFisico">0.00</span> kg</p>
                     </div>
-                    <div class="equiv-card">
-                        <div class="icon">🍾</div>
-                        <p><strong id="eqPlastico">0</strong> garrafas</p>
-                        <small>de plástico evitadas</small>
+                    <div class="card card-eco">
+                        <h4>Cenário Simulado</h4>
+                        <p><span id="valorDigital">0.00</span> kg</p>
                     </div>
-                    <div class="equiv-card">
-                        <div class="icon">🚗</div>
-                        <p><strong id="eqKm">0</strong> km</p>
-                        <small>de carro não rodados</small>
+                    <div class="card card-reducao">
+                        <h4>Redução Total</h4>
+                        <p><span id="reducaoAbs">0.00</span> kg</p>
+                    </div>
+                </div>
+
+                <div class="alerta-reducao">
+                    Com <span id="displayPctMigracao">100</span>% de migração, sua economia é de <span id="reducaoPct">0</span>%.
+                </div>
+
+                <div class="grafico-box" style="margin-bottom: 25px; padding: 25px; height: auto;">
+                    <canvas id="impactoChart"></canvas>
+                </div>
+
+                <div class="equivalencias-container">
+                    <h3>Caso Recife toda mudasse do físico para o digital:</h3>
+                    <p style="margin-bottom: 20px; font-size: 1.1rem;">Redução estimada para a cidade: <strong style="color: #3498db;"><span id="reducaoAbsCidade">0.00</span> kg CO₂e</strong></p>
+                    <div class="grid-equivalencias">
+                        <div class="equiv-card">
+                            <div class="icon">🌳</div>
+                            <p><strong id="eqArvores">0</strong> árvores</p>
+                            <small>absorvendo CO₂ no ano</small>
+                        </div>
+                        <div class="equiv-card">
+                            <div class="icon">🍾</div>
+                            <p><strong id="eqPlastico">0</strong> garrafas</p>
+                            <small>de plástico evitadas</small>
+                        </div>
+                        <div class="equiv-card">
+                            <div class="icon">🚗</div>
+                            <p><strong id="eqKm">0</strong> km</p>
+                            <small>de carro não rodados</small>
+                        </div>
+                    </div>
+                </div>
+            </div> <div class="acoes-finais">
+                <button type="button" id="btnGerarPdf" class="btn-pdf">📄 Baixar Relatório em PDF</button>
+                <div id="pdfLoading" class="hidden">Gerando PDF, por favor aguarde...</div>
+
+                <div class="cta-box">
+                    <h4>Deseja mais funcionalidades ou salvar no perfil?</h4>
+                    <p>Crie uma conta para salvar seus relatórios, acompanhar seu histórico e definir metas ambientais.</p>
+                    <div class="cta-botoes">
+                        <button type="button" class="btn-login" onclick="abrirModal('loginModal')">Faça Login</button>
+                        <button type="button" class="btn-cadastrar" onclick="abrirModal('cadastroModal')">Criar Conta</button>
                     </div>
                 </div>
             </div>
@@ -117,10 +134,58 @@
         </div>
     </div>
 
-    <!-- Painéis Laterais para Animação de Verde -->
+    <div id="loginModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('loginModal')">&times;</span>
+            <h2>Acesse sua conta</h2>
+            <form id="formLogin">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="loginEmail" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="loginSenha" required>
+                </div>
+                <div id="loginErro" class="mensagem-erro hidden">E-mail ou senha incorretos.</div>
+                <button type="submit" class="btn-login">Entrar</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="cadastroModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModal('cadastroModal')">&times;</span>
+            <h2>Crie seu Perfil EdenGreen</h2>
+            <form id="formCadastro">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="cadNome" required minlength="3" placeholder="João da Silva">
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="cadEmail" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="cadSenha" required minlength="6" placeholder="Mínimo 6 caracteres">
+                </div>
+                <div class="form-group">
+                    <label>Confirme a Senha</label>
+                    <input type="password" id="cadConfSenha" required>
+                </div>
+                <div id="cadastroErro" class="mensagem-erro hidden">As senhas não coincidem.</div>
+                <div id="cadastroSucesso" class="mensagem-sucesso hidden">Conta criada com sucesso!</div>
+                <button type="submit" class="btn-cadastrar">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+
     <div id="side-panel-left" class="side-panel"></div>
     <div id="side-panel-right" class="side-panel"></div>
 
     <script th:src="@{/script.js}"></script>
 </body>
 </html>
+
+

@@ -127,7 +127,6 @@ function atualizarDashboardSimulado(animarLongo) {
 
     renderGrafico({ labels: ['Cenário Atual', 'Simulado'], values: [fisico, emissaoSimulada] }, animarLongo);
     
-    // Ativa a animação lateral
     document.getElementById('side-panel-left').classList.add('active');
     document.getElementById('side-panel-right').classList.add('active');
 }
@@ -165,7 +164,6 @@ function inicializarPaineisLaterais() {
     }
 }
 
-// Chamar uma vez para definir o estado inicial
 window.addEventListener('DOMContentLoaded', () => {
     inicializarPaineisLaterais();
 });
@@ -182,3 +180,103 @@ function animarContador(id, fim, dur, casas) {
     };
     window.requestAnimationFrame(step);
 }
+
+
+document.getElementById('btnGerarPdf').addEventListener('click', function() {
+    const btnPdf = document.getElementById('btnGerarPdf');
+    const loadingText = document.getElementById('pdfLoading');
+    const areaRelatorio = document.getElementById('areaRelatorio');
+
+    btnPdf.classList.add('hidden');
+    loadingText.classList.remove('hidden');
+
+    
+    areaRelatorio.style.backgroundColor = '#f0f8f4'; 
+    areaRelatorio.style.padding = '20px';
+    areaRelatorio.style.borderRadius = '16px';
+
+    const opt = {
+        margin:       10,
+        filename:     'Relatorio_Impacto_EdenGreen.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+            scale: 2, 
+            scrollY: 0, 
+            useCORS: true 
+        },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+   
+    html2pdf().set(opt).from(areaRelatorio).save().then(() => {
+        btnPdf.classList.remove('hidden');
+        loadingText.classList.add('hidden');
+        
+        
+        areaRelatorio.style.backgroundColor = 'transparent';
+        areaRelatorio.style.padding = '0';
+    }).catch(err => {
+        alert("Erro ao gerar o PDF. Tente novamente.");
+        btnPdf.classList.remove('hidden');
+        loadingText.classList.add('hidden');
+    });
+});
+
+
+function abrirModal(modalId) {
+    document.getElementById(modalId).classList.remove('hidden');
+    
+    
+    if(modalId === 'loginModal') {
+        document.getElementById('formLogin').reset();
+        document.getElementById('loginErro').classList.add('hidden');
+    } else {
+        document.getElementById('formCadastro').reset();
+        document.getElementById('cadastroErro').classList.add('hidden');
+        document.getElementById('cadastroSucesso').classList.add('hidden');
+    }
+}
+
+function fecharModal(modalId) {
+    document.getElementById(modalId).classList.add('hidden');
+}
+
+window.onclick = function(event) {
+    if (event.target.classList.contains('modal')) {
+        event.target.classList.add('hidden');
+    }
+}
+
+
+document.getElementById('formLogin').addEventListener('submit', function(e) {
+    e.preventDefault(); 
+    const erroDiv = document.getElementById('loginErro');
+    
+    
+    erroDiv.classList.remove('hidden');
+    erroDiv.innerText = "Funcionalidade em desenvolvimento. Integração com banco de dados necessária.";
+});
+
+document.getElementById('formCadastro').addEventListener('submit', function(e) {
+    e.preventDefault(); 
+    const senha = document.getElementById('cadSenha').value;
+    const confSenha = document.getElementById('cadConfSenha').value;
+    const erroDiv = document.getElementById('cadastroErro');
+    const sucessoDiv = document.getElementById('cadastroSucesso');
+
+  
+    erroDiv.classList.add('hidden');
+    sucessoDiv.classList.add('hidden');
+
+    
+    if (senha !== confSenha) {
+        erroDiv.classList.remove('hidden');
+        erroDiv.innerText = "As senhas digitadas não coincidem.";
+        return;
+    }
+
+    sucessoDiv.classList.remove('hidden');
+    setTimeout(() => {
+        fecharModal('cadastroModal');
+    }, 2000);
+});
