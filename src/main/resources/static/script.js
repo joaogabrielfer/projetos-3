@@ -182,50 +182,8 @@ function animarContador(id, fim, dur, casas) {
 }
 
 
-document.getElementById('btnGerarPdf').addEventListener('click', function() {
-    const btnPdf = document.getElementById('btnGerarPdf');
-    const loadingText = document.getElementById('pdfLoading');
-    const areaRelatorio = document.getElementById('areaRelatorio');
-
-    btnPdf.classList.add('hidden');
-    loadingText.classList.remove('hidden');
-
-    
-    areaRelatorio.style.backgroundColor = '#f0f8f4'; 
-    areaRelatorio.style.padding = '20px';
-    areaRelatorio.style.borderRadius = '16px';
-
-    const opt = {
-        margin:       10,
-        filename:     'Relatorio_Impacto_EdenGreen.pdf',
-        image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-            scale: 2, 
-            scrollY: 0, 
-            useCORS: true 
-        },
-        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-    };
-
-   
-    html2pdf().set(opt).from(areaRelatorio).save().then(() => {
-        btnPdf.classList.remove('hidden');
-        loadingText.classList.add('hidden');
-        
-        
-        areaRelatorio.style.backgroundColor = 'transparent';
-        areaRelatorio.style.padding = '0';
-    }).catch(err => {
-        alert("Erro ao gerar o PDF. Tente novamente.");
-        btnPdf.classList.remove('hidden');
-        loadingText.classList.add('hidden');
-    });
-});
-
-
 function abrirModal(modalId) {
     document.getElementById(modalId).classList.remove('hidden');
-    
     
     if(modalId === 'loginModal') {
         document.getElementById('formLogin').reset();
@@ -247,36 +205,131 @@ window.onclick = function(event) {
     }
 }
 
-
-document.getElementById('formLogin').addEventListener('submit', function(e) {
+document.getElementById('formLogin').addEventListener('submit', async function(e) {
     e.preventDefault(); 
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginSenha').value;
     const erroDiv = document.getElementById('loginErro');
     
-    
-    erroDiv.classList.remove('hidden');
-    erroDiv.innerText = "Funcionalidade em desenvolvimento. Integração com banco de dados necessária.";
+    erroDiv.classList.add('hidden');
+
+    try {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            localStorage.setItem('token', data.token);
+            fecharModal('loginModal');
+            alert('Login efetuado com sucesso!');
+        } else {
+            erroDiv.classList.remove('hidden');
+            erroDiv.innerText = "Credenciais inválidas";
+        }
+    } catch (err) {
+        erroDiv.classList.remove('hidden');
+        erroDiv.innerText = "Erro ao conectar com o servidor.";
+    }
 });
 
-document.getElementById('formCadastro').addEventListener('submit', function(e) {
+document.getElementById('formCadastro').addEventListener('submit', async function(e) {
     e.preventDefault(); 
-    const senha = document.getElementById('cadSenha').value;
+    const nome = document.getElementById('cadNome').value;
+    const email = document.getElementById('cadEmail').value;
+    const password = document.getElementById('cadSenha').value;
     const confSenha = document.getElementById('cadConfSenha').value;
     const erroDiv = document.getElementById('cadastroErro');
     const sucessoDiv = document.getElementById('cadastroSucesso');
 
-  
     erroDiv.classList.add('hidden');
     sucessoDiv.classList.add('hidden');
 
-    
-    if (senha !== confSenha) {
+    if (password !== confSenha) {
         erroDiv.classList.remove('hidden');
         erroDiv.innerText = "As senhas digitadas não coincidem.";
         return;
     }
 
-    sucessoDiv.classList.remove('hidden');
-    setTimeout(() => {
-        fecharModal('cadastroModal');
-    }, 2000);
+    try {
+        const response = await fetch('/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ nome, email, password })
+        });
+
+        if (response.ok) {
+            sucessoDiv.classList.remove('hidden');
+            setTimeout(() => {
+                fecharModal('cadastroModal');
+                abrirModal('loginModal');
+            }, 2000);
+        } else {
+            const errorText = await response.text();
+            erroDiv.classList.remove('hidden');
+            erroDiv.innerText = errorText || "Erro no cadastro.";
+        }
+    } catch (err) {
+        erroDiv.classList.remove('hidden');
+        erroDiv.innerText = "Erro ao conectar com o servidor.";
+    }
+});
+
+document.getElementById('btnGerarPdf').addEventListener('click', async function() {
+    const btnPdf = document.getElementById('btnGerarPdf');
+    const loadingText = document.getElementById('pdfLoading');
+    const areaRelatorio = document.getElementById('areaRelatorio');
+
+    btnPdf.classList.add('hidden');
+    loadingText.classList.remove('hidden');
+
+    areaRelatorio.style.backgroundColor = '#f0f8f4'; 
+    areaRelatorio.style.padding = '20px';
+    areaRelatorio.style.borderRadius = '16px';
+
+    const token = localStorage.getItem('token');
+    if (token && backendDataCache) {
+        try {
+            await fetch('/api/relatorios', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                },
+                body: JSON.stringify({
+                    emissaoAtual: backendDataCache.emissaoFisico,
+                    emissaoNova: backendDataCache.emissaoSimulada,
+                    reducao: backendDataCache.reducaoSimulada,
+                    reducaoCidade: backendDataCache.reducaoCidade
+                })
+            });
+        } catch (e) {
+            console.error('Erro ao salvar relatório no perfil', e);
+        }
+    }
+
+    const opt = {
+        margin:       10,
+        filename:     'Relatorio_Impacto_EdenGreen.pdf',
+        image:        { type: 'jpeg', quality: 0.98 },
+        html2canvas:  { 
+            scale: 2, 
+            scrollY: 0, 
+            useCORS: true 
+        },
+        jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(areaRelatorio).save().then(() => {
+        btnPdf.classList.remove('hidden');
+        loadingText.classList.add('hidden');
+        areaRelatorio.style.backgroundColor = 'transparent';
+        areaRelatorio.style.padding = '0';
+    }).catch(err => {
+        alert("Erro ao gerar o PDF. Tente novamente.");
+        btnPdf.classList.remove('hidden');
+        loadingText.classList.add('hidden');
+    });
 });
