@@ -22,6 +22,16 @@
 <body>
     <div class="container">
         <header>
+            <div id="authHeader" class="auth-bar">
+                <div id="guestLinks">
+                    <button type="button" class="btn-link" onclick="abrirModal('loginModal')">Entrar</button>
+                    <button type="button" class="btn-link" onclick="abrirModal('cadastroModal')">Cadastrar</button>
+                </div>
+                <div id="userWelcome" class="hidden">
+                    Olá, <strong id="userName">Usuário</strong>! 
+                    <button type="button" class="btn-link" onclick="logout()">Sair</button>
+                </div>
+            </div>
             <h1>EdenGreen Impact</h1>
             <p>Simulador de Impacto Ambiental</p>
         </header>

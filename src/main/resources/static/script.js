@@ -164,8 +164,37 @@ function inicializarPaineisLaterais() {
     }
 }
 
+function atualizarUIAuth() {
+    const token = localStorage.getItem('token');
+    const nome = localStorage.getItem('userName');
+    
+    const guestLinks = document.getElementById('guestLinks');
+    const userWelcome = document.getElementById('userWelcome');
+    const userNameSpan = document.getElementById('userName');
+    const ctaBox = document.querySelector('.cta-box');
+
+    if (token && nome) {
+        guestLinks.classList.add('hidden');
+        userWelcome.classList.remove('hidden');
+        userNameSpan.innerText = nome;
+        if (ctaBox) ctaBox.classList.add('hidden');
+    } else {
+        guestLinks.classList.remove('hidden');
+        userWelcome.classList.add('hidden');
+        if (ctaBox) ctaBox.classList.remove('hidden');
+    }
+}
+
+function logout() {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userName');
+    atualizarUIAuth();
+    alert('Você saiu da sua conta.');
+}
+
 window.addEventListener('DOMContentLoaded', () => {
     inicializarPaineisLaterais();
+    atualizarUIAuth();
 });
 
 function animarContador(id, fim, dur, casas) {
@@ -223,7 +252,9 @@ document.getElementById('formLogin').addEventListener('submit', async function(e
         if (response.ok) {
             const data = await response.json();
             localStorage.setItem('token', data.token);
+            localStorage.setItem('userName', data.nome);
             fecharModal('loginModal');
+            atualizarUIAuth();
             alert('Login efetuado com sucesso!');
         } else {
             erroDiv.classList.remove('hidden');
