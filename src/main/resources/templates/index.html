@@ -76,8 +76,7 @@
         <div id="loadingState" class="hidden">Analisando dados ambientais...</div>
 
         <div id="resultState" class="hidden fade-in">
-            
-            <div id="areaRelatorio">
+            <div id="dashboardVisual">
                 <div class="resultado-principal">
                     <h3>Emissão Total Acumulada:</h3>
                     <p><span id="valorIndividual">0.00</span> kg CO₂e</p>
@@ -127,9 +126,19 @@
                         </div>
                     </div>
                 </div>
-            </div> <div class="acoes-finais">
-                <button type="button" id="btnGerarPdf" class="btn-pdf">📄 Baixar Relatório em PDF</button>
-                <div id="pdfLoading" class="hidden">Gerando PDF, por favor aguarde...</div>
+            </div> 
+            
+            <div class="acoes-finais">
+                <button type="button" id="btnGerarRelatorio" class="btn-pdf">📊 Gerar Relatório Detalhado</button>
+                <div id="relatorioLoading" class="hidden" style="text-align: center; color: #3498db; margin-top: 10px;">Processando dados e montando documento...</div>
+
+                <div id="areaDocumentoGerado" class="hidden fade-in">
+                    <div id="documentoFormalA4" class="documento-formal">
+                        </div>
+                    
+                    <button type="button" id="btnBaixarPdf" class="btn-pdf" style="background-color: #2ecc71; margin-top: 20px;">📄 Baixar Relatório em PDF</button>
+                    <div id="pdfLoading" class="hidden">Fazendo download do PDF, por favor aguarde...</div>
+                </div>
 
                 <div class="cta-box">
                     <h4>Deseja mais funcionalidades ou salvar no perfil?</h4>
@@ -140,7 +149,6 @@
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -197,5 +205,4 @@
     <script th:src="@{/script.js}"></script>
 </body>
 </html>
-
 

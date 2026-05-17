@@ -483,4 +483,86 @@ button:hover {
     .cta-botoes { flex-direction: column; }
     .cta-botoes button { width: 100%; }
 }
+#areaDocumentoGerado {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px dashed #bdc3c7;
+}
 
+.documento-formal {
+    background: #ffffff;
+    padding: 40px;
+    border: 1px solid #dcdde1;
+    border-radius: 8px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    color: #2f3640;
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    text-align: left;
+}
+
+.documento-formal h2 {
+    color: var(--dark-green);
+    border-bottom: 2px solid var(--primary-green);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.doc-secao {
+    margin-bottom: 25px;
+}
+
+.doc-secao h3 {
+    color: #34495e;
+    font-size: 1.2rem;
+    margin-bottom: 15px;
+    background-color: #f1f2f6;
+    padding: 5px 10px;
+    border-left: 4px solid var(--primary-green);
+}
+
+.doc-lista {
+    list-style-type: none;
+    padding-left: 10px;
+}
+
+.doc-lista li {
+    margin-bottom: 8px;
+    padding-left: 15px;
+    position: relative;
+}
+
+.doc-lista li::before {
+    content: "•";
+    color: var(--primary-green);
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.doc-tabela {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.doc-tabela th, .doc-tabela td {
+    border: 1px solid #dcdde1;
+    padding: 10px;
+    text-align: left;
+}
+
+.doc-tabela th {
+    background-color: #f8f9fa;
+    color: var(--dark-green);
+}
+
+.doc-footer {
+    margin-top: 40px;
+    text-align: center;
+    font-size: 0.85rem;
+    color: #7f8fa6;
+    border-top: 1px solid #dcdde1;
+    padding-top: 15px;
+}

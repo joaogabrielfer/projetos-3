@@ -307,59 +307,143 @@ document.getElementById('formCadastro').addEventListener('submit', async functio
         erroDiv.innerText = "Erro ao conectar com o servidor.";
     }
 });
+document.getElementById('btnGerarRelatorio').addEventListener('click', async function() {
+    const btnGerar = document.getElementById('btnGerarRelatorio');
+    const loadingRelatorio = document.getElementById('relatorioLoading');
+    const areaDocumento = document.getElementById('areaDocumentoGerado');
+    const documentoFormal = document.getElementById('documentoFormalA4');
 
-document.getElementById('btnGerarPdf').addEventListener('click', async function() {
-    const btnPdf = document.getElementById('btnGerarPdf');
+    
+    btnGerar.classList.add('hidden');
+    loadingRelatorio.classList.remove('hidden');
+
+   
+    setTimeout(async () => {
+        
+        const cartoes = [];
+        document.querySelectorAll('.cartao-item').forEach(item => {
+            const tipo = item.querySelector('.tipo-cartao').value;
+            const anos = parseFloat(item.querySelector('.anos-cartao').value);
+            if (tipo && !isNaN(anos)) cartoes.push({ tipo, anos });
+        });
+
+        const pctMigracao = document.getElementById('percentualMigracao').value;
+        const dataAtual = new Date().toLocaleDateString('pt-BR');
+        const horaAtual = new Date().toLocaleTimeString('pt-BR');
+
+        
+        const htmlCartoes = cartoes.map(c => `<li><strong>Cartão ${c.tipo}:</strong> Possui há ${c.anos} anos</li>`).join('');
+
+        
+        const relatorioHTML = `
+            <h2>Relatório de Impacto Ambiental</h2>
+            <div style="text-align: center; margin-bottom: 25px; font-size: 0.9rem; color: #7f8c8d;">
+                Data de emissão: ${dataAtual} às ${horaAtual}
+            </div>
+
+            <div class="doc-secao">
+                <h3>1. Parâmetros da Simulação</h3>
+                <p>Os cálculos foram baseados no cenário em que o usuário informou a seguinte configuração de uso de cartões físicos de benefícios corporativos:</p>
+                <ul class="doc-lista">
+                    ${htmlCartoes}
+                </ul>
+                <p style="margin-top: 10px;"><strong>Taxa de Migração Simulada:</strong> A simulação projetou um cenário onde <strong>${pctMigracao}%</strong> desses cartões são convertidos para o modelo 100% digital.</p>
+            </div>
+
+            <div class="doc-secao">
+                <h3>2. Resultados da Pegada de Carbono Pessoal</h3>
+                <table class="doc-tabela">
+                    <tr>
+                        <th>Métrica</th>
+                        <th>Valores (kg CO₂e)</th>
+                    </tr>
+                    <tr>
+                        <td>Pegada de Carbono Atual (Físico)</td>
+                        <td>${backendDataCache.emissaoFisico.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td>Pegada no Cenário Projetado (Digital)</td>
+                        <td>${backendDataCache.emissaoSimulada.toFixed(2)}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Economia Total Absoluta</strong></td>
+                        <td><strong>${backendDataCache.reducaoSimulada.toFixed(2)}</strong></td>
+                    </tr>
+                </table>
+            </div>
+
+            <div class="doc-secao">
+                <h3>3. Projeção de Impacto em Escala (Recife)</h3>
+                <p>Caso a taxa de migração simulada (${pctMigracao}%) fosse aplicada a todos os usuários corporativos ativos na região metropolitana de Recife, teríamos o seguinte cenário macroambiental:</p>
+                <ul class="doc-lista">
+                    <li><strong>Redução Total Estimada:</strong> ${backendDataCache.reducaoCidade.toFixed(2)} kg CO₂e</li>
+                </ul>
+                <p style="margin-top: 15px;"><strong>Essa redução é equivalente a:</strong></p>
+                <ul class="doc-lista">
+                    <li>A absorção de carbono de <strong>${backendDataCache.equivalenciasCidade.arvores.toFixed(0)} árvores</strong> ao longo de um ano.</li>
+                    <li>A não produção de <strong>${backendDataCache.equivalenciasCidade.plastico.toFixed(0)} garrafas plásticas (PET)</strong>.</li>
+                    <li>A eliminação da queima de combustível referente a <strong>${backendDataCache.equivalenciasCidade.km.toFixed(0)} km rodados</strong> por um veículo de passeio.</li>
+                </ul>
+            </div>
+
+            <div class="doc-footer">
+                Relatório gerado automaticamente pelo Simulador EdenGreen Impact.<br>
+                Este documento serve para fins de conscientização e acompanhamento de metas ASG.
+            </div>
+        `;
+
+        
+        documentoFormal.innerHTML = relatorioHTML;
+
+        
+        loadingRelatorio.classList.add('hidden');
+        areaDocumento.classList.remove('hidden');
+
+        
+        const token = localStorage.getItem('token');
+        if (token && backendDataCache) {
+            try {
+                await fetch('/api/relatorios', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({
+                        emissaoAtual: backendDataCache.emissaoFisico,
+                        emissaoNova: backendDataCache.emissaoSimulada,
+                        reducao: backendDataCache.reducaoSimulada,
+                        reducaoCidade: backendDataCache.reducaoCidade
+                    })
+                });
+            } catch (e) { console.error('Erro ao salvar relatório no perfil', e); }
+        }
+
+      
+        areaDocumento.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    }, 800); 
+});
+
+
+document.getElementById('btnBaixarPdf').addEventListener('click', function() {
+    const btnPdf = document.getElementById('btnBaixarPdf');
     const loadingText = document.getElementById('pdfLoading');
-    const areaRelatorio = document.getElementById('areaRelatorio');
+    const relatorioParaImprimir = document.getElementById('documentoFormalA4');
 
     btnPdf.classList.add('hidden');
     loadingText.classList.remove('hidden');
 
-    areaRelatorio.style.backgroundColor = '#f0f8f4'; 
-    areaRelatorio.style.padding = '20px';
-    areaRelatorio.style.borderRadius = '16px';
-
-    const token = localStorage.getItem('token');
-    if (token && backendDataCache) {
-        try {
-            await fetch('/api/relatorios', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({
-                    emissaoAtual: backendDataCache.emissaoFisico,
-                    emissaoNova: backendDataCache.emissaoSimulada,
-                    reducao: backendDataCache.reducaoSimulada,
-                    reducaoCidade: backendDataCache.reducaoCidade
-                })
-            });
-        } catch (e) {
-            console.error('Erro ao salvar relatório no perfil', e);
-        }
-    }
-
     const opt = {
-        margin:       10,
-        filename:     'Relatorio_Impacto_EdenGreen.pdf',
+        margin:       15,
+        filename:     'Relatorio_Analitico_EdenGreen.pdf',
         image:        { type: 'jpeg', quality: 0.98 },
-        html2canvas:  { 
-            scale: 2, 
-            scrollY: 0, 
-            useCORS: true 
-        },
+        html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
         jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
-    html2pdf().set(opt).from(areaRelatorio).save().then(() => {
+    html2pdf().set(opt).from(relatorioParaImprimir).save().then(() => {
         btnPdf.classList.remove('hidden');
         loadingText.classList.add('hidden');
-        areaRelatorio.style.backgroundColor = 'transparent';
-        areaRelatorio.style.padding = '0';
     }).catch(err => {
-        alert("Erro ao gerar o PDF. Tente novamente.");
+        alert("Erro ao realizar o download do PDF. Tente novamente.");
         btnPdf.classList.remove('hidden');
         loadingText.classList.add('hidden');
     });
