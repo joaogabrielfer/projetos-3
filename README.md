@@ -110,6 +110,11 @@ Para garantir a organização e evitar conflitos no código, a equipe utiliza um
 - UH06 - Visualizar Equivalências Ambientais 
 ---
 
+**4ª Sprint (...)**
+- UH07 - Gerar Relatório Automático
+- UH08 - Cadastro de Usuários
+- UH09 - Login no Sistema 
+---
 
 ## 📋 Quadro de Tarefas (Status Atual)
 
