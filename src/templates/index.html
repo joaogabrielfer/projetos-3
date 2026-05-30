@@ -9,7 +9,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 </head>
 <body>
-
     <div class="container">
         <header>
             <div id="authHeader" class="auth-bar">
@@ -25,10 +24,16 @@
             
             <div class="brand-logo-container">
                 <svg viewBox="0 0 100 100" class="brand-logo-svg" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="38" cy="50" r="22" fill="#E5001C" />
-                    <path d="M48 72 C 48 72, 88 72, 88 32 C 88 32, 48 32, 48 72 Z" fill="#10B981" opacity="0.95" />
+                    <circle cx="50" cy="50" r="45" fill="#E5001C" />
+                    <path d="M50 20 C65 20, 75 35, 70 55 C65 75, 50 80, 50 80 C50 80, 35 75, 30 55 C25 35, 35 20, 50 20 Z" fill="#10B981" />
+                    <path d="M50 20 L50 80" stroke="white" stroke-width="3" stroke-linecap="round" />
+                    <path d="M50 40 L60 33" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    <path d="M50 50 L40 43" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    <path d="M50 60 L62 53" stroke="white" stroke-width="2" stroke-linecap="round" />
+                    <path d="M50 70 L38 63" stroke="white" stroke-width="2" stroke-linecap="round" />
                 </svg>
             </div>
+            
             <h1>EdenGreen Impact</h1>
             <p>Simulador de Impacto Ambiental Edenred</p>
         </header>
@@ -49,7 +54,7 @@
                             </select>
                         </div>
                         <div class="field-group">
-                            <label>Anos de posse</label>
+                            <label>A quantos anos você possui esse cartão?</label>
                             <input type="number" class="anos-cartao" placeholder="Ex: 2.5" min="0" step="any" required>
                         </div>
                         <button type="button" class="btn-remove" onclick="removerCartao(this)">Remover</button>
@@ -60,7 +65,7 @@
             <button type="button" class="btn-add" id="btnAddCartao">+ Adicionar Outro Cartão</button>
             
             <div class="cards-preview-container">
-                <h3>Visualização Dinâmica</h3>
+                <h3>Visualização Dinâmica dos Cartões</h3>
                 <div id="visualCardsList" class="visual-cards-list"></div>
             </div>
             
@@ -103,71 +108,107 @@
                     Com <span id="displayPctMigracao">100</span>% de migração, sua economia é de <span id="reducaoPct">0</span>%.
                 </div>
 
-                <div class="grafico-box" style="margin-bottom: 30px; padding: 25px; height: 350px;">
+                <div class="grafico-box" style="margin-bottom: 30px; padding: 25px; height: 350px; position: relative;">
                     <canvas id="impactoChart"></canvas>
                 </div>
 
                 <div class="equivalencias-container">
                     <h3>Caso Recife toda mudasse do físico para o digital:</h3>
-                    <p style="margin-bottom: 20px;">Redução estimada: <strong id="reducaoAbsCidade">0.00</strong> kg CO₂e</p>
+                    <p style="margin-bottom: 20px; font-size: 1.15rem;">Redução estimada para a cidade: <strong style="color: var(--text-main);"><span id="reducaoAbsCidade">0.00</span> kg CO₂e</strong></p>
                     <div class="grid-equivalencias">
                         <div class="equiv-card">
                             <div class="equiv-icon-container" id="equiv-icon-arvores"></div>
                             <p><strong id="eqArvores">0</strong> árvores</p>
+                            <small>absorvendo CO₂ no ano</small>
                         </div>
                         <div class="equiv-card">
                             <div class="equiv-icon-container" id="equiv-icon-plastico"></div>
                             <p><strong id="eqPlastico">0</strong> garrafas</p>
+                            <small>de plástico evitadas</small>
                         </div>
                         <div class="equiv-card">
                             <div class="equiv-icon-container" id="equiv-icon-km"></div>
                             <p><strong id="eqKm">0</strong> km</p>
+                            <small>de carro não rodados</small>
                         </div>
                     </div>
                 </div>
-            </div>
-
+            </div> 
+            
             <div class="acoes-finais">
-                <button type="button" id="btnGerarRelatorio" class="btn-action">Gerar Relatório Detalhado</button>
-                <div id="areaDocumentoGerado" class="hidden">
-                    <div id="documentoFormalA4" class="documento-formal"></div>
-                    <button type="button" id="btnBaixarPdf" class="btn-action btn-success">Baixar PDF</button>
+                <button type="button" id="btnGerarRelatorio" class="btn-pdf">📊 Gerar Relatório Detalhado</button>
+                <div id="relatorioLoading" class="hidden" style="text-align: center; color: var(--text-muted); margin-top: 10px;">Processando dados e montando documento...</div>
+
+                <div id="areaDocumentoGerado" class="hidden fade-in">
+                    <div id="documentoFormalA4" class="documento-formal">
+                    </div>
+                    
+                    <button type="button" id="btnBaixarPdf" class="btn-pdf" style="background-color: var(--text-main); margin-top: 20px;">📄 Baixar Relatório em PDF</button>
+                    <div id="pdfLoading" class="hidden">Fazendo download do PDF, por favor aguarde...</div>
                 </div>
-                
+
                 <div class="cta-box">
-                    <h4>Salvar histórico?</h4>
-                    <button type="button" class="btn-cadastrar" onclick="abrirModal('cadastroModal')">Criar Conta</button>
+                    <h4>Deseja mais funcionalidades ou salvar no perfil?</h4>
+                    <p>Crie uma conta para salvar seus relatórios, acompanhar seu histórico e definir metas ambientais.</p>
+                    <div class="cta-botoes">
+                        <button type="button" class="btn-login" onclick="abrirModal('loginModal')">Faça Login</button>
+                        <button type="button" class="btn-cadastrar" onclick="abrirModal('cadastroModal')">Criar Conta</button>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- Login Modal -->
     <div id="loginModal" class="modal hidden">
         <div class="modal-content">
             <span class="close" onclick="fecharModal('loginModal')">&times;</span>
             <h2>Acesse sua conta</h2>
-            <form id="formLogin">
-                <input type="email" id="loginEmail" required placeholder="E-mail">
-                <input type="password" id="loginSenha" required placeholder="Senha">
-                <button type="submit">Entrar</button>
+            <form id="formLogin" style="background: none; border: none; padding: 0; box-shadow: none; margin: 0;">
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="loginEmail" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="loginSenha" required>
+                </div>
+                <div id="loginErro" class="mensagem-erro hidden">E-mail ou senha incorretos.</div>
+                <button type="submit" class="btn-cadastrar" style="width: 100%;">Entrar</button>
             </form>
         </div>
     </div>
 
+    <!-- Register Modal -->
     <div id="cadastroModal" class="modal hidden">
         <div class="modal-content">
             <span class="close" onclick="fecharModal('cadastroModal')">&times;</span>
-            <h2>Criar Conta</h2>
-            <form id="formCadastro">
-                <input type="text" id="cadNome" required placeholder="Nome">
-                <input type="email" id="cadEmail" required placeholder="E-mail">
-                <input type="password" id="cadSenha" required placeholder="Senha">
-                <input type="password" id="cadConfSenha" required placeholder="Confirmar Senha">
-                <button type="submit">Cadastrar</button>
+            <h2>Crie seu Perfil EdenGreen</h2>
+            <form id="formCadastro" style="background: none; border: none; padding: 0; box-shadow: none; margin: 0;">
+                <div class="form-group">
+                    <label>Nome Completo</label>
+                    <input type="text" id="cadNome" required minlength="3" placeholder="João da Silva">
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="cadEmail" required placeholder="seu@email.com">
+                </div>
+                <div class="form-group">
+                    <label>Senha</label>
+                    <input type="password" id="cadSenha" required minlength="6" placeholder="Mínimo 6 caracteres">
+                </div>
+                <div class="form-group">
+                    <label>Confirme a Senha</label>
+                    <input type="password" id="cadConfSenha" required>
+                </div>
+                <div id="cadastroErro" class="mensagem-erro hidden">As senhas não coincidem.</div>
+                <div id="cadastroSucesso" class="mensagem-sucesso hidden">Conta criada com sucesso!</div>
+                <button type="submit" class="btn-cadastrar" style="width: 100%;">Cadastrar</button>
             </form>
         </div>
     </div>
 
+    <!-- Dynamic side panels for tree planting animation -->
     <div id="side-panel-left" class="side-panel"></div>
     <div id="side-panel-right" class="side-panel"></div>
 
