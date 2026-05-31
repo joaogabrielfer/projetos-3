@@ -697,6 +697,13 @@ button[type="submit"]:hover {
 .btn-cadastrar {
     background-color: var(--brand-red);
     color: var(--bg-white);
+    border: none;
+    padding: 14px 36px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
 }
 
 .btn-cadastrar:hover {
